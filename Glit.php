@@ -1,7 +1,7 @@
 <?php
-namespace AllProgrammic\Gpit;
+namespace AllProgrammic\Glit;
 
-class Gpit implements \ArrayAccess {
+class Glit implements \ArrayAccess {
 
     public function __construct($repoPath) {
 
