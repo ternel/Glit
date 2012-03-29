@@ -1,3 +1,18 @@
+GlitAdminBundle:
+    resource: "@GlitAdminBundle/Controller/"
+    type:     annotation
+    prefix:   /admin/
+
+GlitUserBundle:
+    resource: "@GlitUserBundle/Controller/"
+    type:     annotation
+    prefix:   /user/
+
+GlitProjectsBundle:
+    resource: "@GlitProjectsBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 # Internal routing configuration to handle ESI
 #_internal:
 #   resource: "@FrameworkBundle/Resources/config/routing/internal.xml"
