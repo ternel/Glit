@@ -1,13 +1,63 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
-    </body>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Glit{% endblock %}</title>
+
+    {% stylesheets filter='?cssrewrite'
+            'css/bootstrap.css'
+            'css/glit.css'
+            'css/bootstrap-responsive.css'
+        %}
+    <link href="{{ asset_url }}" rel="stylesheet" charset="utf-8" />
+    {% endstylesheets %}
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    {% block stylesheets %}{% endblock %}
+
+
+</head>
+<body>
+{% include '::_navbar.html.twig' %}
+
+<div class="container main">
+    {% for key, flash in app.session.getFlashes() %}
+
+    <div class="alert alert-{{ key }}">
+        {% if flash.closable %}
+        <a class="close" data-dismiss="alert">×</a>
+        {% endif %}
+        <strong>{{ flash.title }} :</strong> {{ flash.text }}
+    </div>
+
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+
+</div>
+
+<div class="container">
+    <footer class="footer">
+        <p class="pull-right"><a href="#">Retour en haut</a></p>
+        {% if app.debug %}
+        <p><strong>Site in dev mode</strong></p>
+        {% endif %}
+    </footer>
+</div>
+
+{% block debug %}{% endblock %}
+
+{% javascripts filter=''
+        'js/jquery.js'
+        'js/bootstrap.js'
+    %}
+<script  type="text/javascript" src="{{ asset_url }}"></script>
+{% endjavascripts %}
+
+{% block javascripts %}{% endblock %}
+</body>
 </html>

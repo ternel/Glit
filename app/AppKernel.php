@@ -20,6 +20,7 @@ class AppKernel extends Kernel
             new Glit\ProjectsBundle\GlitProjectsBundle(),
             new Glit\UserBundle\GlitUserBundle(),
             new Glit\AdminBundle\GlitAdminBundle(),
+            new Glit\CoreBundle\GlitCoreBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

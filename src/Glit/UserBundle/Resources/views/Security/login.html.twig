@@ -1,0 +1,29 @@
+{% extends '::base.html.twig' %}
+
+{% block content %}
+
+<div class="row-fluid">
+
+    <form action="{{ path("_security_login_check") }}" method="post">
+        <fieldset>
+            <legend>Identification</legend>
+            <div class="row-fluid">
+                <label>
+                    Nom d'utilisateur :
+                    <input type="text" name="_username" class="span3" value="{{ last_username }}">
+                </label>
+            </div>
+            <div class="row-fluid">
+                <label>
+                    Mot de passe :
+                    <input type="password" class="span3" name="_password">
+                </label>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">Connexion</button>
+        </fieldset>
+    </form>
+
+</div>
+{% endblock %}

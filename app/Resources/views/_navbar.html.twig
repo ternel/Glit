@@ -1,0 +1,39 @@
+<header class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="{{ path('_welcome') }}">Glit</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <li><a href="{{ path('_welcome') }}">Accueil</a></li>
+                        <li><a href="{{ path('glit_projects_default_index') }}">Projets</a></li>
+                        <li><a href="#contact">Taches</a></li>
+                        <li><a href="#contact">Documents</a></li>
+                        <li><a href="#contact">Equipes</a></li>
+                    {% endif %}
+                </ul>
+
+                <ul class="nav pull-right">
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <li class="dropdown">
+                        <a href="#" class="navbar-user dropdown-toggle" data-toggle="dropdown">{{ app.user }}<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ path('glit_core_account_view', {'uniqueName':app.user}) }}">Mon Profil</a></li>
+                            <li><a href="{{ path('_security_logout') }}">Déconnexion</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <form class="navbar-search pull-right">
+                    <input type="search" class="search-query" placeholder="Recherche" />
+                </form>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</header>

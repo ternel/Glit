@@ -1,3 +1,14 @@
+_security_login_check:
+    pattern: /user/security/login_check
+
+_security_logout:
+    pattern: /user/security/logout
+
+GlitCoreBundle:
+    resource: "@GlitCoreBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 GlitAdminBundle:
     resource: "@GlitAdminBundle/Controller/"
     type:     annotation
@@ -11,7 +22,7 @@ GlitUserBundle:
 GlitProjectsBundle:
     resource: "@GlitProjectsBundle/Controller/"
     type:     annotation
-    prefix:   /
+    prefix:   /projects/
 
 # Internal routing configuration to handle ESI
 #_internal:

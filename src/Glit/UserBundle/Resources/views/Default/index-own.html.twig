@@ -1,0 +1,10 @@
+{% extends 'GlitUserBundle:Default:layout.html.twig' %}
+
+{% block class_active_profile %}class="active"{% endblock %}
+
+{% block layout_content %}
+<div class="row-fluid">
+    <h1>Bonjour {{ user.username }}</h1>
+    <p>Vous êtes sur votre propre page</p>
+</div>
+{% endblock %}
