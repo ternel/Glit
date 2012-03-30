@@ -1,0 +1,16 @@
+{% form_theme form ':Form:form_horizontal_layout.html.twig' %}
+
+<form class="form-horizontal">
+    {{ form_widget(form._token) }}
+
+    <fieldset>
+        <legend>{% trans %}Your Profile{% endtrans %}</legend>
+
+        {{ form_rest(form) }}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% trans %}Save changes{% endtrans %}</button>
+            <button type="reset" class="btn">{% trans %}Cancel{% endtrans %}</button>
+        </div>
+    </fieldset>
+</form>

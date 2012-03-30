@@ -4,6 +4,8 @@ namespace Glit\UserBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Glit\UserBundle\Form\Type as Type;
+use Glit\UserBundle\Form\Model as FormModel;
 
 class DefaultController extends Controller
 {
@@ -24,7 +26,12 @@ class DefaultController extends Controller
      * @Template()
      */
     public function editAction() {
-        return array();
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $formProfile = $this->createForm(new Type\ProfileType(), $user);
+        $formPassword = $this->createForm(new Type\ChangePasswordType(), new FormModel\ChangePassword($user));
+
+        return array('formProfile' => $formProfile->createView(), 'formPassword' => $formPassword->createView());
     }
 
     /**

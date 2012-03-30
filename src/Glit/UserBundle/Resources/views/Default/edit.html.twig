@@ -3,10 +3,12 @@
 {% block class_active_infos %}class="active"{% endblock %}
 
 {% block layout_content %}
-<div class="row-fluid">
-    <h1>Votre Profil</h1>
+<div class="page-header">
+    <h1>{% trans %}My Data{% endtrans %}</h1>
 </div>
 <div class="row-fluid">
+    {% include "GlitUserBundle:Default:edit-profile.html.twig" with {'form': formProfile} only  %}
 
+    {% include "GlitUserBundle:Default:edit-password.html.twig" with {'form': formPassword} only  %}
 </div>
 {% endblock %}
