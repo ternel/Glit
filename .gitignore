@@ -1,7 +1,7 @@
 .idea/
 
 # Symfony
-bootstrap*
+app/bootstrap*
 vendor/*
 */logs/*
 */cache/*

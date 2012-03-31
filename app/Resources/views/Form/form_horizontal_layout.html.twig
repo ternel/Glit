@@ -171,6 +171,7 @@
 {% endif %}
     <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}{% if errors|length > 0 %}class="error" {% endif %}/>
 {% if type != 'hidden' %}
+    {{ form_errors(form) }}
 </div>
 {% endif %}
 {% endspaceless %}
@@ -200,9 +201,9 @@
 {% block generic_label %}
 {% spaceless %}
 {% if required %}
-{% set attr = attr|merge({'class': attr.class|default('') ~ ' control-label required'}) %}
+{% set attr = attr|merge({'class': attr.class|default('') ~ 'control-label required'}) %}
 {% else %}
-{% set attr = attr|merge({'class': attr.class|default('') ~ ' control-label'}) %}
+{% set attr = attr|merge({'class': attr.class|default('') ~ 'control-label'}) %}
 {% endif %}
 <label{% for attrname,attrvalue in attr %} {{attrname}}="{{attrvalue}}"{% endfor %}>{{ label|trans }}</label>
 {% endspaceless %}
@@ -230,10 +231,14 @@
 {% endblock repeated_row %}
 
 {% block field_row %}
+{% if errors|length > 0 %}
+{% set attr = attr|merge({'class': attr.class|default('') ~ ' error control-group'}) %}
+{% else %}
+{% set attr = attr|merge({'class': attr.class|default('') ~ ' control-group'}) %}
+{% endif %}
 {% spaceless %}
-<div class="control-group">
+<div {% for attrname,attrvalue in attr %} {{attrname}}="{{attrvalue}}" {% endfor %}>
     {{ form_label(form, label|default(null)) }}
-    {{ form_errors(form) }}
     {{ form_widget(form) }}
 </div>
 {% endspaceless %}
@@ -254,7 +259,7 @@
 {% block field_errors %}
 {% spaceless %}
 {% if errors|length > 0 %}
-<ul class="error">
+<ul class="error unstyled">
     {% for error in errors %}
     <li>{{ error.messageTemplate|trans(error.messageParameters, 'validators') }}</li>
     {% endfor %}
@@ -279,7 +284,11 @@
 {% spaceless %}
 {{ form_errors(form) }}
 {% for child in form %}
-{{ form_row(child) }}
+    {% if errors|length > 0 %}
+        {{ form_row(child, {'attr': {'class': 'error'}}) }}
+    {% else %}
+        {{ form_row(child) }}
+    {% endif %}
 {% endfor %}
 {% endspaceless %}
 {% endblock field_rows %}
