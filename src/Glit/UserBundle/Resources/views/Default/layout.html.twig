@@ -7,19 +7,20 @@
             <ul class="nav nav-list">
                 <li class="nav-header">{{ app.user }}</li>
                 <li {% block class_active_profile %}{% endblock %}>
-                    <a href="{{ path('glit_core_account_view', {'uniqueName':app.user}) }}">{% trans %}My Page{% endtrans %}</a>
+                    <a href="{{ path('glit_core_account_view', {'uniqueName':app.user}) }}">{% trans %}My
+                        Page{% endtrans %}</a>
                 </li>
                 <li {% block class_active_infos %}{% endblock %}>
                     <a href="{{ path('glit_user_default_edit') }}">{% trans %}My Data{% endtrans %}</a>
                 </li>
-                <li>
-                    <a href="{{ path('glit_user_default_ssh') }}"{% block class_active_ssh %}{% endblock %}>{% trans %}My SSH Keys{% endtrans %}</a>
+                <li {% block class_active_ssh %}{% endblock %}>
+                    <a href="{{ path('glit_user_default_ssh') }}">{% trans %}My SSH Keys{% endtrans %}</a>
                 </li>
-                <li>
-                    <a href="{{ path('glit_user_default_organizations') }}"{% block class_active_orga %}{% endblock %}>{% trans %}Organizations{% endtrans %}</a>
+                <li {% block class_active_orga %}{% endblock %}>
+                    <a href="{{ path('glit_user_default_organizations') }}">{% trans %}Organizations{% endtrans %}</a>
                 </li>
-                <li>
-                    <a href="{{ path('glit_user_default_notifications') }}"{% block class_active_notif %}{% endblock %}>{% trans %}Notifications{% endtrans %}</a>
+                <li{% block class_active_notif %}{% endblock %}>
+                    <a href="{{ path('glit_user_default_notifications') }}">{% trans %}Notifications{% endtrans %}</a>
                 </li>
             </ul>
         </div>
@@ -29,4 +30,4 @@
     </div>
 
 </div>
-{% endblock %}
+        {% endblock %}

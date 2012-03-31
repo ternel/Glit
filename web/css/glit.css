@@ -15,3 +15,23 @@ body {
     font-weight: bold;
     color: #08C;
 }
+
+.page-header .actions {
+    float: right;
+}
+
+.borders {
+    border: 1px solid #CCC;
+    -moz-box-shadow: 0 0 3px #ddd;
+    -webkit-box-shadow: 0 0 3px #ddd;
+    box-shadow: 0 0 3px #ddd;
+}
+
+.small {
+    font-size: 11px;
+    color: #999999;
+}
+
+.sidebar-nav {
+    padding: 9px 0;
+}
