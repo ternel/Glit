@@ -2,8 +2,8 @@
 
 {% block form_widget %}
 {% spaceless %}
-    {{ block('field_rows') }}
-    {{ form_rest(form) }}
+{{ block('field_rows') }}
+{{ form_rest(form) }}
 {% endspaceless %}
 {% endblock form_widget %}
 
@@ -18,7 +18,9 @@
 
 {% block textarea_widget %}
 {% spaceless %}
-<textarea {{ block('widget_attributes') }}>{{ value }}</textarea>
+<div class="controls">
+    <textarea {{ block('widget_attributes') }}>{{ value }}</textarea>
+</div>
 {% endspaceless %}
 {% endblock textarea_widget %}
 
@@ -28,11 +30,13 @@
 {% if _form_is_choice_group(label) %}
 <optgroup label="{{ choice|trans }}">
     {% for nestedChoice, nestedLabel in label %}
-    <option value="{{ nestedChoice }}"{% if _form_is_choice_selected(form, nestedChoice) %} selected="selected"{% endif %}>{{ nestedLabel|trans }}</option>
+    <option value="{{ nestedChoice }}"{% if _form_is_choice_selected(form, nestedChoice) %}
+            selected="selected"{% endif %}>{{ nestedLabel|trans }}</option>
     {% endfor %}
 </optgroup>
 {% else %}
-<option value="{{ choice }}"{% if _form_is_choice_selected(form, choice) %} selected="selected"{% endif %}>{{ label|trans }}</option>
+<option value="{{ choice }}"{% if _form_is_choice_selected(form, choice) %}
+        selected="selected"{% endif %}>{{ label|trans }}</option>
 {% endif %}
 {% endfor %}
 {% endspaceless %}
@@ -68,13 +72,15 @@
 
 {% block checkbox_widget %}
 {% spaceless %}
-<input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+<input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %}
+       value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
 {% endspaceless %}
 {% endblock checkbox_widget %}
 
 {% block radio_widget %}
 {% spaceless %}
-<input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+<input type="radio" {{ block('widget_attributes') }}{% if value is defined %}
+       value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
 {% endspaceless %}
 {% endblock radio_widget %}
 
@@ -168,9 +174,10 @@
 {% set type = type|default('text') %}
 {% if type != 'hidden' %}
 <div class="controls">
-{% endif %}
-    <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}{% if errors|length > 0 %}class="error" {% endif %}/>
-{% if type != 'hidden' %}
+    {% endif %}
+    <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}"
+           {% endif %}{% if errors|length > 0 %}class="error" {% endif %}/>
+    {% if type != 'hidden' %}
     {{ form_errors(form) }}
 </div>
 {% endif %}
@@ -201,9 +208,9 @@
 {% block generic_label %}
 {% spaceless %}
 {% if required %}
-{% set attr = attr|merge({'class': attr.class|default('') ~ 'control-label required'}) %}
+{% set attr = attr|merge({'class': attr.class|default('') ~ ' control-label required'}) %}
 {% else %}
-{% set attr = attr|merge({'class': attr.class|default('') ~ 'control-label'}) %}
+{% set attr = attr|merge({'class': attr.class|default('') ~ ' control-label'}) %}
 {% endif %}
 <label{% for attrname,attrvalue in attr %} {{attrname}}="{{attrvalue}}"{% endfor %}>{{ label|trans }}</label>
 {% endspaceless %}
@@ -238,8 +245,8 @@
 {% endif %}
 {% spaceless %}
 <div {% for attrname,attrvalue in attr %} {{attrname}}="{{attrvalue}}" {% endfor %}>
-    {{ form_label(form, label|default(null)) }}
-    {{ form_widget(form) }}
+{{ form_label(form, label|default(null)) }}
+{{ form_widget(form) }}
 </div>
 {% endspaceless %}
 {% endblock field_row %}
@@ -284,16 +291,17 @@
 {% spaceless %}
 {{ form_errors(form) }}
 {% for child in form %}
-    {% if errors|length > 0 %}
-        {{ form_row(child, {'attr': {'class': 'error'}}) }}
-    {% else %}
-        {{ form_row(child) }}
-    {% endif %}
+{% if errors|length > 0 %}
+{{ form_row(child, {'attr': {'class': 'error'}}) }}
+{% else %}
+{{ form_row(child) }}
+{% endif %}
 {% endfor %}
 {% endspaceless %}
 {% endblock field_rows %}
 
 {% block widget_attributes %}
+{% set attr = attr|merge({'class': attr.class|default('input-xlarge') ~ ''}) %}
 {% spaceless %}
 id="{{ id }}" name="{{ full_name }}"{% if read_only %} disabled="disabled"{% endif %}{% if required %} required="required"{% endif %}{% if max_length %} maxlength="{{ max_length }}"{% endif %}{% if pattern %} pattern="{{ pattern }}"{% endif %}
 {% for attrname,attrvalue in attr %}{{attrname}}="{{attrvalue}}" {% endfor %}
