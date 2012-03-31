@@ -3,6 +3,8 @@ namespace Glit\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ExecutionContext;
 use Glit\CoreBundle\Entity\Organization;
 
 /**
@@ -27,6 +29,7 @@ class User extends Organization implements UserInterface {
 
     /**
      * @ORM\Column(type="string", length="100")
+     * @Assert\Email()
      */
     protected $email;
 
@@ -150,5 +153,125 @@ class User extends Organization implements UserInterface {
 
     public function __toString() {
         return $this->uniqueName;
+    }
+
+    /**
+     * Set salt
+     *
+     * @param string $salt
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
+    }
+
+    /**
+     * Set password
+     *
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set firstname
+     *
+     * @param string $firstname
+     */
+    public function setFirstname($firstname)
+    {
+        $this->firstname = $firstname;
+    }
+
+    /**
+     * Get firstname
+     *
+     * @return string 
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * Set lastname
+     *
+     * @param string $lastname
+     */
+    public function setLastname($lastname)
+    {
+        $this->lastname = $lastname;
+    }
+
+    /**
+     * Get lastname
+     *
+     * @return string 
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
+    }
+
+    /**
+     * Set requireProfileUpdate
+     *
+     * @param boolean $requireProfileUpdate
+     */
+    public function setRequireProfileUpdate($requireProfileUpdate)
+    {
+        $this->requireProfileUpdate = $requireProfileUpdate;
+    }
+
+    /**
+     * Get requireProfileUpdate
+     *
+     * @return boolean 
+     */
+    public function getRequireProfileUpdate()
+    {
+        return $this->requireProfileUpdate;
+    }
+
+    /**
+     * Set requirePasswordChange
+     *
+     * @param boolean $requirePasswordChange
+     */
+    public function setRequirePasswordChange($requirePasswordChange)
+    {
+        $this->requirePasswordChange = $requirePasswordChange;
+    }
+
+    /**
+     * Get requirePasswordChange
+     *
+     * @return boolean 
+     */
+    public function getRequirePasswordChange()
+    {
+        return $this->requirePasswordChange;
     }
 }

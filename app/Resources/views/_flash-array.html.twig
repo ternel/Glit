@@ -1,0 +1,6 @@
+<div class="alert alert-{{ key }}">
+    {% if flash.closable %}
+    <a class="close" data-dismiss="alert">×</a>
+    {% endif %}
+    <strong>{{ flash.title }} :</strong> {{ flash.text }}
+</div>

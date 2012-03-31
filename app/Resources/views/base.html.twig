@@ -27,12 +27,11 @@
 <div class="container main">
     {% for key, flash in app.session.getFlashes() %}
 
-    <div class="alert alert-{{ key }}">
-        {% if flash.closable %}
-        <a class="close" data-dismiss="alert">×</a>
+        {% if flash.closable is defined %}
+            {% include '::_flash-array.html.twig' with {'key': key, 'flash': flash} only %}
+        {% else %}
+            {% include '::_flash.html.twig' with {'key': key, 'flash': flash} only %}
         {% endif %}
-        <strong>{{ flash.title }} :</strong> {{ flash.text }}
-    </div>
 
     {% endfor %}
 

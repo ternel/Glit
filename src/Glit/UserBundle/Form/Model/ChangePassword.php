@@ -2,23 +2,20 @@
 namespace Glit\UserBundle\Form\Model;
 
 use Symfony\Component\Security\Core\User\UserInterface;
-
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ExecutionContext;
+/**
+ * @Glit\UserBundle\Validator\Password(passwordProperty="current", userProperty="user", message="glit_user.current_password.invalid")
+ */
 class ChangePassword {
 
-    /**
-     * User whose password is changed
-     *
-     * @var UserInterface
-     */
     public $user;
 
-    /**
-     * @var string
-     */
     public $current;
 
     /**
-     * @var string
+     * @Assert\NotBlank()
+     * @Assert\MinLength(limit=2)
      */
     public $new;
 
