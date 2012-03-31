@@ -12,9 +12,9 @@ use Glit\CoreBundle\Entity\BaseEntity;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({"user" = "Glit\UserBundle\Entity\User", "organization" = "Organization"})
- * @DoctrineAssert\UniqueEntity(fields={"uniqueName"}, message="account.uniqueName.allreadyexist")
+ * @DoctrineAssert\UniqueEntity(fields={"uniqueName"}, message="glit.account.uniqueName.allreadyexist")
  */
-abstract class Account extends BaseEntity  {
+abstract class Account extends BaseEntity {
 
     /**
      * @ORM\Id
