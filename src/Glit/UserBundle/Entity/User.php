@@ -49,18 +49,14 @@ class User extends Organization implements UserInterface {
     protected $requireProfileUpdate;
 
     /**
+     * @ORM\OneToMany(targetEntity="SshKey", mappedBy="user", cascade={"persist", "remove"})
+     */
+    protected $sshKeys;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     protected $requirePasswordChange;
-
-    public function __construct() {
-        $this->requirePasswordChange = false;
-        $this->requireProfileUpdate = false;
-    }
-
-    public function getType() {
-        return 'user';
-    }
 
     /**
      * Returns the roles granted to the user.
@@ -103,7 +99,7 @@ class User extends Organization implements UserInterface {
      */
     public function getSalt() {
         if (empty($this->salt)) {
-            $this->salt = md5(rand(10000, 999999).time());
+            $this->salt = md5(rand(10000, 999999) . time());
         }
 
         return $this->salt;
@@ -160,8 +156,7 @@ class User extends Organization implements UserInterface {
      *
      * @param string $salt
      */
-    public function setSalt($salt)
-    {
+    public function setSalt($salt) {
         $this->salt = $salt;
     }
 
@@ -170,8 +165,7 @@ class User extends Organization implements UserInterface {
      *
      * @param string $password
      */
-    public function setPassword($password)
-    {
+    public function setPassword($password) {
         $this->password = $password;
     }
 
@@ -180,18 +174,16 @@ class User extends Organization implements UserInterface {
      *
      * @param string $email
      */
-    public function setEmail($email)
-    {
+    public function setEmail($email) {
         $this->email = $email;
     }
 
     /**
      * Get email
      *
-     * @return string 
+     * @return string
      */
-    public function getEmail()
-    {
+    public function getEmail() {
         return $this->email;
     }
 
@@ -200,18 +192,16 @@ class User extends Organization implements UserInterface {
      *
      * @param string $firstname
      */
-    public function setFirstname($firstname)
-    {
+    public function setFirstname($firstname) {
         $this->firstname = $firstname;
     }
 
     /**
      * Get firstname
      *
-     * @return string 
+     * @return string
      */
-    public function getFirstname()
-    {
+    public function getFirstname() {
         return $this->firstname;
     }
 
@@ -220,18 +210,16 @@ class User extends Organization implements UserInterface {
      *
      * @param string $lastname
      */
-    public function setLastname($lastname)
-    {
+    public function setLastname($lastname) {
         $this->lastname = $lastname;
     }
 
     /**
      * Get lastname
      *
-     * @return string 
+     * @return string
      */
-    public function getLastname()
-    {
+    public function getLastname() {
         return $this->lastname;
     }
 
@@ -240,18 +228,16 @@ class User extends Organization implements UserInterface {
      *
      * @param boolean $requireProfileUpdate
      */
-    public function setRequireProfileUpdate($requireProfileUpdate)
-    {
+    public function setRequireProfileUpdate($requireProfileUpdate) {
         $this->requireProfileUpdate = $requireProfileUpdate;
     }
 
     /**
      * Get requireProfileUpdate
      *
-     * @return boolean 
+     * @return boolean
      */
-    public function getRequireProfileUpdate()
-    {
+    public function getRequireProfileUpdate() {
         return $this->requireProfileUpdate;
     }
 
@@ -260,18 +246,44 @@ class User extends Organization implements UserInterface {
      *
      * @param boolean $requirePasswordChange
      */
-    public function setRequirePasswordChange($requirePasswordChange)
-    {
+    public function setRequirePasswordChange($requirePasswordChange) {
         $this->requirePasswordChange = $requirePasswordChange;
     }
 
     /**
      * Get requirePasswordChange
      *
-     * @return boolean 
+     * @return boolean
      */
-    public function getRequirePasswordChange()
-    {
+    public function getRequirePasswordChange() {
         return $this->requirePasswordChange;
+    }
+
+    /**
+     * Add sshKeys
+     *
+     * @param Glit\UserBundle\Entity\SshKey $sshKeys
+     */
+    public function addSshKey(\Glit\UserBundle\Entity\SshKey $sshKeys) {
+        $this->sshKeys[] = $sshKeys;
+    }
+
+    /**
+     * Get sshKeys
+     *
+     * @return Doctrine\Common\Collections\Collection
+     */
+    public function getSshKeys() {
+        return $this->sshKeys;
+    }
+
+    public function __construct() {
+        $this->requirePasswordChange = false;
+        $this->requireProfileUpdate = false;
+        $this->sshKeys = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    public function getType() {
+        return 'user';
     }
 }
