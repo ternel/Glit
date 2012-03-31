@@ -5,14 +5,18 @@ use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
-class PasswordValidator extends ConstraintValidator
-{
+class PasswordValidator extends ConstraintValidator {
     protected $encoderFactory;
+    protected $securityContext;
 
-    public function setEncoderFactory(EncoderFactoryInterface $factory)
-    {
+    public function setEncoderFactory(EncoderFactoryInterface $factory) {
         $this->encoderFactory = $factory;
+    }
+
+    public function setSecurityContext(SecurityContextInterface $context) {
+        $this->securityContext = $context;
     }
 
     /**
@@ -25,16 +29,10 @@ class PasswordValidator extends ConstraintValidator
      *
      * @throws UnexpectedTypeException if $object is not an object
      */
-    public function isValid($object, Constraint $constraint)
-    {
-        if (!is_object($object)) {
-            throw new UnexpectedTypeException($object, 'object');
-        }
-
-        $raw = $object->{$constraint->passwordProperty};
-        $user = null === $constraint->userProperty ? $object : $object->{$constraint->userProperty};
+    public function isValid($object, Constraint $constraint) {
+        $user = $this->securityContext->getToken()->getUser();
         $encoder = $this->encoderFactory->getEncoder($user);
-        if (!$encoder->isPasswordValid($user->getPassword(), $raw, $user->getSalt())) {
+        if (!$encoder->isPasswordValid($user->getPassword(), $object, $user->getSalt())) {
             $this->setMessage($constraint->message);
 
             return false;

@@ -15,6 +15,9 @@
             <call method="setEncoderFactory">
                 <argument type="service" id="security.encoder_factory"/>
             </call>
+            <call method="setSecurityContext">
+                <argument type="service" id="security.context"/>
+            </call>
             <tag name="validator.constraint_validator" alias="glit_user.validator.password"/>
         </service>
     </services>
