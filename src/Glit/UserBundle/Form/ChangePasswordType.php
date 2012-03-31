@@ -1,5 +1,5 @@
 <?php
-namespace Glit\UserBundle\Form\Type;
+namespace Glit\UserBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilder;
