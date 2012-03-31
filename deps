@@ -1,6 +1,6 @@
 [symfony]
     git=http://github.com/symfony/symfony.git
-    version=v2.0.11
+    version=v2.0.12
 [twig]
     git=http://github.com/fabpot/Twig.git
     version=v1.6.2
@@ -20,6 +20,13 @@
 [doctrine]
     git=http://github.com/doctrine/doctrine2.git
     version=2.1.6
+
+[gedmo-doctrine-extensions]
+    git=http://github.com/l3pp4rd/DoctrineExtensions.git
+
+[StofDoctrineExtensionsBundle]
+    git=http://github.com/stof/StofDoctrineExtensionsBundle.git
+    target=/bundles/Stof/DoctrineExtensionsBundle
 
 [swiftmailer]
     git=http://github.com/swiftmailer/swiftmailer.git
