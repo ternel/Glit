@@ -9,6 +9,7 @@ use Glit\UserBundle\Form\Model as FormModel;
 
 class DefaultController extends Controller {
     public function viewAction(\Glit\UserBundle\Entity\User $user) {
+        $this->get('glit_gitolite.admin');
         $projects = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findByOwner($user->getId());
 
         if ($this->getCurrentUser()->getId() == $user->getId()) {
@@ -103,6 +104,11 @@ class DefaultController extends Controller {
                 if (!$em->contains($key)) {
                     $em->persist($key);
                 }
+
+                /** @var $gitoliteAdmin \Glit\GitoliteBundle\Admin\Gitolite */
+                $gitoliteAdmin = $this->get('glit_gitolite.admin');
+                $gitoliteAdmin->saveUserKey($key->getKeyIdentifier(), $key->getPublicKey());
+
                 $em->flush();
 
                 $this->setFlash('success', 'Your SSH public key was successfully saved.');
@@ -129,6 +135,11 @@ class DefaultController extends Controller {
 
         if (null !== $key) {
             $this->getDefaultEntityManager()->remove($key);
+
+            /** @var $gitoliteAdmin \Glit\GitoliteBundle\Admin\Gitolite */
+            $gitoliteAdmin = $this->get('glit_gitolite.admin');
+            $gitoliteAdmin->deleteUserKey($key->getKeyIdentifier());
+
             $this->getDefaultEntityManager()->flush();
 
             $this->setFlash('success', 'Your SSH public key was deleted.');
