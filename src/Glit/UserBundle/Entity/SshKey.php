@@ -17,16 +17,6 @@ class SshKey extends \Glit\CoreBundle\Entity\SshKey {
      */
     private $user;
 
-    public function __construct(User $user) {
-        $this->setUser($user);
-    }
-
-    public function persist() {
-        parent::persist();
-
-        $this->generateKeyIdentifier($this->user->getEmail());
-    }
-
     /**
      * Set user
      *
@@ -43,5 +33,15 @@ class SshKey extends \Glit\CoreBundle\Entity\SshKey {
      */
     public function getUser() {
         return $this->user;
+    }
+
+    public function __construct(User $user) {
+        $this->setUser($user);
+    }
+
+    public function persist() {
+        parent::persist();
+
+        $this->generateKeyIdentifier($this->user->getEmail());
     }
 }

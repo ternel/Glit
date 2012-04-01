@@ -5,58 +5,60 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContext;
-use Glit\CoreBundle\Entity\Organization;
+use Glit\CoreBundle\Entity\Account;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="users")
  *
  */
-class User extends Organization implements UserInterface {
-
-    protected $id;
-    protected $uniqueName;
+class User extends Account implements UserInterface {
 
     /**
      * @ORM\Column(type="string", length="255")
      */
-    protected $salt;
+    private $salt;
 
     /**
      * @ORM\Column(type="string", length="255")
      */
-    protected $password;
+    private $password;
 
     /**
      * @ORM\Column(type="string", length="100")
      * @Assert\Email()
      */
-    protected $email;
+    private $email;
 
     /**
      * @ORM\Column(type="string", length="50")
      */
-    protected $firstname;
+    private $firstname;
 
     /**
      * @ORM\Column(type="string", length="50")
      */
-    protected $lastname;
+    private $lastname;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", name="require_profil_update")
      */
-    protected $requireProfileUpdate;
+    private $requireProfileUpdate;
 
     /**
      * @ORM\OneToMany(targetEntity="SshKey", mappedBy="user", cascade={"persist", "remove"})
      */
-    protected $sshKeys;
+    private $sshKeys;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", name="require_password_change")
      */
-    protected $requirePasswordChange;
+    private $requirePasswordChange;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Glit\CoreBundle\Entity\Organization", mappedBy="users", cascade={"persist", "remove"})
+     */
+    private $organizations;
 
     /**
      * Returns the roles granted to the user.
@@ -106,7 +108,7 @@ class User extends Organization implements UserInterface {
     }
 
     public function setUsername($value) {
-        return $this->uniqueName = $value;
+        $this->setUniqueName($value);
     }
 
     /**
@@ -115,7 +117,7 @@ class User extends Organization implements UserInterface {
      * @return string The username
      */
     public function getUsername() {
-        return $this->uniqueName;
+        return $this->getUniqueName();
     }
 
     /**
@@ -148,7 +150,7 @@ class User extends Organization implements UserInterface {
     }
 
     public function __toString() {
-        return $this->uniqueName;
+        return $this->getUsername();
     }
 
     /**
@@ -285,5 +287,23 @@ class User extends Organization implements UserInterface {
 
     public function getType() {
         return 'user';
+    }
+
+    /**
+     * Add organizations
+     *
+     * @param Glit\CoreBundle\Entity\Organization $organizations
+     */
+    public function addOrganization(\Glit\CoreBundle\Entity\Organization $organizations) {
+        $this->organizations[] = $organizations;
+    }
+
+    /**
+     * Get organizations
+     *
+     * @return Doctrine\Common\Collections\Collection
+     */
+    public function getOrganizations() {
+        return $this->organizations;
     }
 }

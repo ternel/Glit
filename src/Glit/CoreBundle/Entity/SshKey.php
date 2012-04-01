@@ -9,7 +9,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints as DoctrineAssert;
  * Glit\UserBundle\Entity\SshKey
  *
  * @ORM\Entity
- * @ORM\Table(name="ssh_keys", uniqueConstraints={@ORM\UniqueConstraint(name="ssh_keys_keyIdentifier_unq", columns={"keyIdentifier"})})
+ * @ORM\Table(name="ssh_keys", uniqueConstraints={@ORM\UniqueConstraint(name="ssh_keys_keyIdentifier_unq", columns={"key_identifier"})})
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({"user_key" = "Glit\UserBundle\Entity\SshKey"})
@@ -23,28 +23,28 @@ abstract class SshKey extends BaseEntity {
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    private $id;
 
     /**
      * @var string $keyIdentifier
      *
-     * @ORM\Column(name="keyIdentifier", type="string", length=100)
+     * @ORM\Column(name="key_identifier", type="string", length=100)
      */
-    protected $keyIdentifier;
+    private $keyIdentifier;
 
     /**
      * @var string $title
      *
      * @ORM\Column(name="title", type="string", length=30)
      */
-    protected $title;
+    private $title;
 
     /**
      * @var string $publicKey
      *
-     * @ORM\Column(name="publicKey", type="string", length=255)
+     * @ORM\Column(name="public_key", type="string", length=255)
      */
-    protected $publicKey;
+    private $publicKey;
 
     //<editor-fold desc="Accessor">
 
@@ -113,7 +113,7 @@ abstract class SshKey extends BaseEntity {
 
     //</editor-fold>
 
-    public function generateKeyIdentifier($base) {
+    protected function generateKeyIdentifier($base) {
         $key = \Gedmo\Sluggable\Util\Urlizer::urlize($base);
         $this->setKeyIdentifier($key . '-' . sha1($this->publicKey . microtime() . $this->getTitle()));
     }
