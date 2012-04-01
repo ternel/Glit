@@ -22,7 +22,7 @@ GlitUserBundle:
 GlitProjectsBundle:
     resource: "@GlitProjectsBundle/Controller/"
     type:     annotation
-    prefix:   /projects/
+    prefix:   /
 
 # Internal routing configuration to handle ESI
 #_internal:
