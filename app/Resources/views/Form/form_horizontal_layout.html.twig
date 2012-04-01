@@ -45,35 +45,45 @@
 {% block choice_widget %}
 {% spaceless %}
 {% if expanded %}
-<div {{ block('widget_container_attributes') }}>
+<div class="controls" {{ block('widget_container_attributes') }}>
     {% for child in form %}
-    {{ form_widget(child) }}
-    {{ form_label(child) }}
+    <label class="radio">
+        {{ form_widget(child) }}
+        {{ form_label(child, null, {'radio': true}) }}
+    </label>
     {% endfor %}
 </div>
 {% else %}
-<select {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
-    {% if empty_value is not none %}
-    <option value="">{{ empty_value|trans }}</option>
-    {% endif %}
-    {% if preferred_choices|length > 0 %}
-    {% set options = preferred_choices %}
-    {{ block('widget_choice_options') }}
-    {% if choices|length > 0 and separator is not none %}
-    <option disabled="disabled">{{ separator }}</option>
-    {% endif %}
-    {% endif %}
-    {% set options = choices %}
-    {{ block('widget_choice_options') }}
-</select>
+<div class="controls">
+    <select {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
+        {% if empty_value is not none %}
+        <option value="">{{ empty_value|trans }}</option>
+        {% endif %}
+        {% if preferred_choices|length > 0 %}
+        {% set options = preferred_choices %}
+        {{ block('widget_choice_options') }}
+        {% if choices|length > 0 and separator is not none %}
+        <option disabled="disabled">{{ separator }}</option>
+        {% endif %}
+        {% endif %}
+        {% set options = choices %}
+        {{ block('widget_choice_options') }}
+    </select>
+</div>
 {% endif %}
 {% endspaceless %}
 {% endblock choice_widget %}
 
 {% block checkbox_widget %}
+{% set help = attr.help|default('') %}
 {% spaceless %}
-<input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %}
-       value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+<div class="controls">
+    <label class="checkbox">
+        <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %}
+               value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+        {{ help }}
+    </label>
+</div>
 {% endspaceless %}
 {% endblock checkbox_widget %}
 
@@ -175,10 +185,21 @@
 {% if type != 'hidden' %}
 <div class="controls">
     {% endif %}
-    <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}"
-           {% endif %}{% if errors|length > 0 %}class="error" {% endif %}/>
-    {% if type != 'hidden' %}
+    {% if prepend is defined %}
+    {% set attr = attr|merge({'class': attr.class|default('') ~ ' span2'}) %}
+    <div class="input-prepend">
+        <span class="add-on">{{ prepend }}</span>
+        {% endif %}
+        <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}"
+               {% endif %}{% if errors|length > 0 %}class="error" {% endif %}/>
+        {% if type != 'hidden' %}
+        {% if prepend is defined %}
+    </div>
+    {% endif %}
     {{ form_errors(form) }}
+    {% if help is defined %}
+    <p class="help-block">{{ help }}</p>
+    {% endif %}
 </div>
 {% endif %}
 {% endspaceless %}
@@ -212,7 +233,11 @@
 {% else %}
 {% set attr = attr|merge({'class': attr.class|default('') ~ ' control-label'}) %}
 {% endif %}
+{% if radio is defined and radio %}
+{{ label|trans }}
+{% else %}
 <label{% for attrname,attrvalue in attr %} {{attrname}}="{{attrvalue}}"{% endfor %}>{{ label|trans }}</label>
+{% endif %}
 {% endspaceless %}
 {% endblock %}
 
