@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <title>{% block title %}Glit{% endblock %}</title>
 
-    {% stylesheets filter='?cssrewrite'
+    {% stylesheets filter='cssrewrite'
             'css/bootstrap.css'
             'css/bootstrap-forms.css'
             'css/glit.css'
             'css/bootstrap-responsive.css'
         %}
-    <link href="{{ asset_url }}" rel="stylesheet" charset="utf-8" />
+    <link href="{{ asset_url }}" rel="stylesheet" charset="utf-8"/>
     {% endstylesheets %}
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -28,11 +28,11 @@
 <div class="container main">
     {% for key, flash in app.session.getFlashes() %}
 
-        {% if flash.closable is defined %}
-            {% include '::_flash-array.html.twig' with {'key': key, 'flash': flash} only %}
-        {% else %}
-            {% include '::_flash.html.twig' with {'key': key, 'flash': flash} only %}
-        {% endif %}
+    {% if flash.closable is defined %}
+    {% include '::_flash-array.html.twig' with {'key': key, 'flash': flash} only %}
+    {% else %}
+    {% include '::_flash.html.twig' with {'key': key, 'flash': flash} only %}
+    {% endif %}
 
     {% endfor %}
 
@@ -55,7 +55,7 @@
         'js/jquery.js'
         'js/bootstrap.js'
     %}
-<script  type="text/javascript" src="{{ asset_url }}"></script>
+<script type="text/javascript" src="{{ asset_url }}"></script>
 {% endjavascripts %}
 
 {% block javascripts %}{% endblock %}
