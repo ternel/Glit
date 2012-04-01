@@ -64,6 +64,11 @@ class Project {
      */
     private $owner;
 
+    public function __construct(\Glit\CoreBundle\Entity\Account $account) {
+        $this->setOwner($account);
+        $this->setDefaultBranch('master');
+    }
+
     /**
      * Get id
      *
