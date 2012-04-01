@@ -9,7 +9,7 @@ use Glit\UserBundle\Form\Model as FormModel;
 
 class DefaultController extends Controller {
     public function viewAction($user) {
-        if ($this->get('security.context')->getToken()->getUser()->getId() == $user->getId()) {
+        if ($this->getCurrentUser()->getId() == $user->getId()) {
             // Own page
             return $this->render('GlitUserBundle:Default:index-own.html.twig', array('user' => $user));
         }
