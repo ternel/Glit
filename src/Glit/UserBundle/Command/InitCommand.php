@@ -11,8 +11,7 @@ class InitCommand extends ContainerAwareCommand {
     /**
      * Configures the current command.
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('glit:users:initialize');
     }
 
@@ -28,12 +27,8 @@ class InitCommand extends ContainerAwareCommand {
      * @param OutputInterface $output An OutputInterface instance
      *
      * @return integer 0 if everything went fine, or an error code
-     *
-     * @throws \LogicException When this abstract method is not implemented
-     * @see    setCode()
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         /** @var $doctrine \Symfony\Bundle\DoctrineBundle\Registry */
         $doctrine = $this->getContainer()->get('doctrine');
         /** @var $em \Doctrine\Common\Persistence\ObjectManager */
@@ -41,7 +36,7 @@ class InitCommand extends ContainerAwareCommand {
 
         $admin = new Entity\User();
         $admin->setUsername('admin');
-        $encoder = $this->getContainer()->get('security.encoder_factory')->getEncoder($admin);
+        $encoder = $this->getEncoderFactory()->getEncoder($admin);
         $admin->setPassword($encoder->encodePassword('password', $admin->getSalt()));
         $admin->setEmail('admin@localhost');
         $admin->setFirstname('Admin');
@@ -49,6 +44,15 @@ class InitCommand extends ContainerAwareCommand {
 
         $em->persist($admin);
         $em->flush();
+
+        return 0;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface
+     */
+    protected function getEncoderFactory() {
+        return $this->getContainer()->get('security.encoder_factory');
     }
 
 }
