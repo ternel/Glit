@@ -7,15 +7,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\Security\Core\SecurityContext;
 
-class SecurityController extends Controller
-{
+class SecurityController extends Controller {
     /**
      * @Route("/security/login", name="_login")
      * @Template()
      */
-    public function loginAction()
-    {
-        if($this->get("security.context")->isGranted('IS_AUTHENTICATED_FULLY')) {
+    public function loginAction() {
+        if ($this->get("security.context")->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->redirect($this->generateUrl('_welcome'));
         }
 
@@ -29,9 +27,9 @@ class SecurityController extends Controller
             $error = $session->get(SecurityContext::AUTHENTICATION_ERROR);
         }
 
-        if(!empty ($error)) {
+        if (!empty ($error)) {
             $session->setFlash('error', array(
-                'title' => 'Erreur',
+                'title' => 'Error',
                 'closable' => true,
                 'text' => $error->getMessage()
             ));
