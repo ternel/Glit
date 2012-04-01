@@ -8,14 +8,16 @@ use Glit\UserBundle\Form as Type;
 use Glit\UserBundle\Form\Model as FormModel;
 
 class DefaultController extends Controller {
-    public function viewAction($user) {
+    public function viewAction(\Glit\UserBundle\Entity\User $user) {
+        $projects = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findByOwner($user->getId());
+
         if ($this->getCurrentUser()->getId() == $user->getId()) {
             // Own page
-            return $this->render('GlitUserBundle:Default:index-own.html.twig', array('user' => $user));
+            return $this->render('GlitUserBundle:Default:index-own.html.twig', array('user' => $user, 'own_projects' => $projects));
         }
         else {
             // Other Page
-            return $this->render('GlitUserBundle:Default:index-others.html.twig', array('user' => $user));
+            return $this->render('GlitUserBundle:Default:index-others.html.twig', array('user' => $user, 'own_projects' => $projects));
         }
     }
 
@@ -154,10 +156,18 @@ class DefaultController extends Controller {
         return array();
     }
 
+    /**
+     * @return Glit\UserBundle\Entity\User
+     */
     protected function getCurrentUser() {
         return $this->get('security.context')->getToken()->getUser();
     }
 
+    /**
+     * Set session flash
+     * @param $action
+     * @param $value
+     */
     protected function setFlash($action, $value) {
         $this->container->get('session')->setFlash($action, $value);
     }
