@@ -37,13 +37,19 @@ class InitCommand extends ContainerAwareCommand {
         $admin = new Entity\User();
         $admin->setUsername('admin');
         $encoder = $this->getEncoderFactory()->getEncoder($admin);
-        $admin->setPassword($encoder->encodePassword('password', $admin->getSalt()));
+        $admin->setPassword($encoder->encodePassword('p@ssw0rd', $admin->getSalt()));
         $admin->setEmail('admin@localhost');
         $admin->setFirstname('Admin');
         $admin->setLastname('Istrator');
 
         $em->persist($admin);
         $em->flush();
+
+        $output->write('<info>
+Admin user created :
+ - username : admin
+ - password : p@ssw0rd
+</info>');
 
         return 0;
     }

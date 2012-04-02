@@ -47,13 +47,37 @@ class InstallCommand extends BaseInstallCommand {
             return 102;
         }
 
-        //$this->createGitUser();
+        $this->createGitUser();
 
-        //$this->createGlitUser();
+        $this->createGlitUser();
 
         $this->installGitolite();
 
+        $this->installDatabase($output);
+
+        $this->createDefaultUser($output);
+
         return 0;
+    }
+
+    private function createDefaultUser(OutputInterface $output) {
+        $input = new ArrayInput(array());
+
+        // Create database
+        $commandCreateDb = $this->getApplication()->find('glit:users:initialize');
+        $commandCreateDb->run($input, $output);
+    }
+
+    private function installDatabase(OutputInterface $output) {
+        $input = new ArrayInput(array());
+
+        // Create database
+        $commandCreateDb = $this->getApplication()->find('doctrine:database:create');
+        $commandCreateDb->run($input, $output);
+
+        // Init schema
+        $commandCreateSchema = $this->getApplication()->find('doctrine:schema:create');
+        $commandCreateSchema->run($input, $output);
     }
 
     private function createGitUser() {
@@ -72,6 +96,9 @@ class InstallCommand extends BaseInstallCommand {
 
         // add localhost public key to known_hosts
         $this->execProcess('sudo -H -u glit echo "localhost" `cat /etc/ssh/ssh_host_rsa_key.pub` >> /home/glit/.ssh/known_hosts');
+
+        // Add sudoers rule : www-data can execute all command as glit
+        $this->execProcess('echo "www-data  ALL=(glit) NOPASSWD: ALL" > /etc/sudoers.d/glit && chmod 440 /etc/sudoers.d/glit');
     }
 
     private function installGitolite() {
