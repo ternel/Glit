@@ -30,7 +30,7 @@ class Repository {
         }
 
         foreach ($file as $f) {
-            $this->execProcessAsGlit('git add ', $f);
+            $this->execProcessAsGlit(sprintf('git add %s', $f));
         }
 
         $this->execProcessAsGlit(sprintf('git commit -m "%s"', $message));
