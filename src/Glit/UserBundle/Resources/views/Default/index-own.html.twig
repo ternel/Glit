@@ -21,10 +21,17 @@
         </div>
         <div class="row-fluid">
             {% if own_projects|length > 0 %}
-            <ul>
+            <ul class="unstyled project-list">
                 {% for project in own_projects %}
                 <li>
-                    <h3></h3>
+                    <h3>
+                        <i class="icon-lock"></i>
+                        <a href="{{ path('glit_projects_default_view', {'accountName': user.username, 'projectName': project.path}) }}">{{ project.name }}</a>
+                    </h3>
+
+                    <div class="body">
+                        <p class="description">{{ project.description }}</p>
+                    </div>
                 </li>
                 {% endfor %}
             </ul>
