@@ -32,9 +32,6 @@ class Gitolite {
         // Load keys and repository
         $this->loadUserKeyList();
         $this->loadRepositories();
-
-        print_r($this->repositories);
-        $this->writeRepositoriesConf();
     }
 
     private function loadUserKeyList() {
@@ -91,7 +88,7 @@ class Gitolite {
             }
         }
 
-        $confFile = 'keygen' . DS . 'gitolite.conf';
+        $confFile = 'conf' . DS . 'gitolite.conf';
         $this->gitRepository->saveFile($confFile, $conf);
         $this->gitRepository->commitFile($confFile, $commitMessage);
         $this->gitRepository->push();
