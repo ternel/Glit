@@ -7,7 +7,8 @@
     <h1>{% trans %}New Project{% endtrans%}</h1>
 </div>
 
-<form class="form-horizontal">
+<form class="form-horizontal" action="{{ path('glit_projects_default_new', {'uniqueName': uniqueName}) }}"
+      method="post">
     {{ form_widget(form._token) }}
 
     <fieldset>
@@ -20,7 +21,7 @@
 
         <div class="control-group">
             {{ form_label(form.path) }}
-            {{ form_widget(form.path, {'attr': {'placeholder': 'example_project'}, 'prepend': url('glit_core_account_view', {'uniqueName': app.user}) ~ '/' }) }}
+            {{ form_widget(form.path, {'attr': {'placeholder': 'example_project'}, 'prepend': url('glit_core_account_view', {'uniqueName': uniqueName}) ~ '/' }) }}
         </div>
 
         {{ form_rest(form) }}

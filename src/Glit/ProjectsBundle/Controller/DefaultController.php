@@ -16,11 +16,23 @@ class DefaultController extends Controller {
     }
 
     /**
-     *
-     *
+     * @Route("{accountName}/{projectPath}")
+     * @Template()
      */
-    public function viewAction(\Glit\ProjectsBundle\Entity\Project $project) {
-        return array();
+    public function viewAction($accountName, $projectPath) {
+        $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($accountName);
+
+        if (null == $account) {
+            throw $this->createNotFoundException(sprintf('Account %s not found', $accountName));
+        }
+
+        $project = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findOneBy(array('path' => $projectPath, 'owner' => $account->getId()));
+
+        if (null == $project) {
+            throw $this->createNotFoundException(sprintf('Project %s not found', $projectPath));
+        }
+
+        return array('project' => $project);
     }
 
     /**
@@ -29,10 +41,13 @@ class DefaultController extends Controller {
      */
     public function newAction($uniqueName) {
         $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($uniqueName);
+        $scope = $uniqueName == $this->getCurrentUser()->getUniqueName() ? 'user' : 'organization';
 
         // Check if current user can create project for this account
-        if ($account != null && $uniqueName != $this->getCurrentUser()->getUniqueName()) {
+        if ($account != null && $scope != 'user') {
             // user create project for another.
+            // scope : organization
+
             // TODO : Check rights
         }
 
@@ -41,10 +56,35 @@ class DefaultController extends Controller {
         }
 
         $project = new \Glit\ProjectsBundle\Entity\Project($account);
-
         $form = $this->createForm(new \Glit\ProjectsBundle\Form\ProjectType(), $project);
 
-        return array('form' => $form->createView());
+        if ('POST' == $this->getRequest()->getMethod()) {
+            $form->bindRequest($this->getRequest());
+            if ($form->isValid()) {
+                $this->getDefaultEntityManager()->persist($project);
+
+                // Create repository
+                $keys = array();
+
+                switch ($scope) {
+                    case 'user':
+                        foreach ($this->getCurrentUser()->getSshKeys() as $k) {
+                            /** @var $k \Glit\UserBundle\Entity\SshKey */
+                            $keys[] = $k->getKeyIdentifier();
+                        }
+                        break;
+                }
+
+                $this->getGitoliteAdmin()->createRepository($project->getFullPath(), $keys);
+
+                $this->getDefaultEntityManager()->flush();
+
+                $this->setFlash('success', sprintf('Projet %s successfully created !', $project->getName()));
+                return $this->redirect($this->generateUrl('_welcome'));
+            }
+        }
+
+        return array('uniqueName' => $uniqueName, 'form' => $form->createView());
     }
 
     /**
@@ -68,5 +108,12 @@ class DefaultController extends Controller {
      */
     protected function getDefaultEntityManager() {
         return $this->getDoctrine()->getEntityManager();
+    }
+
+    /**
+     * @return \Glit\GitoliteBundle\Admin\Gitolite
+     */
+    protected function getGitoliteAdmin() {
+        return $this->get('glit_gitolite.admin');
     }
 }
