@@ -171,7 +171,7 @@ class Project {
     /**
      * Set owner
      *
-     * @param Glit\CoreBundle\Entity\Account $owner
+     * @param \Glit\CoreBundle\Entity\Account $owner
      */
     public function setOwner(\Glit\CoreBundle\Entity\Account $owner) {
         $this->owner = $owner;
@@ -180,9 +180,13 @@ class Project {
     /**
      * Get owner
      *
-     * @return Glit\CoreBundle\Entity\Account
+     * @return \Glit\CoreBundle\Entity\Account
      */
     public function getOwner() {
         return $this->owner;
+    }
+
+    public function getFullPath() {
+        return $this->getOwner()->getUniqueName() . '/' . $this->getPath();
     }
 }
