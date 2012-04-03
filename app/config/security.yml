@@ -2,13 +2,16 @@ security:
     encoders:
         Glit\UserBundle\Entity\User: sha512
 
-    role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+    #role_hierarchy:
+    #    ROLE_ADMIN:       ROLE_USER
+    #    ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
     providers:
             main:
                 entity: { class: Glit\UserBundle\Entity\User, property: uniqueName }
+
+    #acl:
+    #    connection: default
 
     firewalls:
 
