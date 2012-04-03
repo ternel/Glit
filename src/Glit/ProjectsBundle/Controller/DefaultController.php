@@ -5,8 +5,10 @@ namespace Glit\ProjectsBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Glit\GitoliteBundle\Git\Repository;
 
 class DefaultController extends Controller {
+
     /**
      * @Route("/projects/")
      * @Template()
@@ -20,16 +22,28 @@ class DefaultController extends Controller {
      * @Template()
      */
     public function viewAction($accountName, $projectPath) {
+        /** @var $account \Glit\CoreBundle\Entity\Account */
         $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($accountName);
 
         if (null == $account) {
             throw $this->createNotFoundException(sprintf('Account %s not found', $accountName));
         }
 
-        $project = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findOneBy(array('path' => $projectPath, 'owner' => $account->getId()));
+        /** @var $project \Glit\ProjectsBundle\Entity\Project */
+        $project = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findOneBy(array('path' => $projectPath,
+                                                                                                     'owner' => $account->getId()));
 
         if (null == $project) {
             throw $this->createNotFoundException(sprintf('Project %s not found', $projectPath));
+        }
+
+        // Load data from repository
+        $repository = $this->getGitoliteAdmin()->getRepository($project->getFullPath() . '.git');
+
+        if ($repository->isNew()) {
+            // TODO : check right
+            return $this->render('GlitProjectsBundle:Default:view-empty.html.twig', array('project' => $project,
+                                                                                         'ssh'      => 'git@dev.glit.fr:' . $project->getFullPath() . '.git'));
         }
 
         return array('project' => $project);
@@ -41,7 +55,7 @@ class DefaultController extends Controller {
      */
     public function newAction($uniqueName) {
         $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($uniqueName);
-        $scope = $uniqueName == $this->getCurrentUser()->getUniqueName() ? 'user' : 'organization';
+        $scope   = $uniqueName == $this->getCurrentUser()->getUniqueName() ? 'user' : 'organization';
 
         // Check if current user can create project for this account
         if ($account != null && $scope != 'user') {
@@ -56,7 +70,7 @@ class DefaultController extends Controller {
         }
 
         $project = new \Glit\ProjectsBundle\Entity\Project($account);
-        $form = $this->createForm(new \Glit\ProjectsBundle\Form\ProjectType(), $project);
+        $form    = $this->createForm(new \Glit\ProjectsBundle\Form\ProjectType(), $project);
 
         if ('POST' == $this->getRequest()->getMethod()) {
             $form->bindRequest($this->getRequest());
@@ -84,7 +98,8 @@ class DefaultController extends Controller {
             }
         }
 
-        return array('uniqueName' => $uniqueName, 'form' => $form->createView());
+        return array('uniqueName' => $uniqueName,
+                     'form'       => $form->createView());
     }
 
     /**
