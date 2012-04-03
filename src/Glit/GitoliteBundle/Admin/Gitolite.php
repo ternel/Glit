@@ -3,12 +3,15 @@ namespace Glit\GitoliteBundle\Admin;
 
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Glit\GitoliteBundle\Git\Repository;
+use Glit\CoreBundle\Utils\SystemPathObject;
 
 class Gitolite {
 
     private $logger;
     private $adminUri = 'git@localhost:gitolite-admin.git';
     private $localDir = '/tmp/glit-gitolite-admin/';
+    private $gitoliteDir;
+    private $gitoliteRepoDir;
 
     /** @var Repository */
     private $gitRepository;
@@ -18,15 +21,19 @@ class Gitolite {
 
     public function __construct(LoggerInterface $logger) {
         $this->logger = $logger;
+
+        $this->gitoliteDir     = new SystemPathObject('/home/git/');
+        $this->gitoliteRepoDir = $this->gitoliteDir->buildSubPath('repositories');
+
         $this->initialize();
     }
 
     protected function initialize() {
         if (!file_exists($this->localDir)) {
-            $this->gitRepository = Repository::cloneRepository($this->logger, $this->adminUri, $this->localDir);
+            $this->gitRepository = Repository::cloneRepository($this->adminUri, $this->localDir, $this->logger);
         }
         else {
-            $this->gitRepository = new Repository($this->logger, $this->localDir);
+            $this->gitRepository = new Repository($this->localDir, $this->logger);
         }
 
         // Load keys and repository
@@ -51,8 +58,9 @@ class Gitolite {
         foreach ($lines as $line) {
             $temp = array_merge(array_filter(explode(" ", $line), 'strlen'));
 
-            if (count($temp) <= 0)
+            if (count($temp) <= 0) {
                 continue;
+            }
 
             if ($temp[0] == 'repo') {
                 if (null !== $tempRepository) {
@@ -60,7 +68,7 @@ class Gitolite {
                 }
 
                 $tempRepository = array(
-                    'name' => $temp[1],
+                    'name'  => $temp[1],
                     'users' => array()
                 );
             }
@@ -95,6 +103,13 @@ class Gitolite {
     }
 
     /**
+     * @param $path
+     */
+    public function getRepository($path) {
+        return new Repository($this->gitoliteRepoDir->buildSubPath($path), $this->logger);
+    }
+
+    /**
      * Add or update user key
      * @param $name
      * @param $sshKey
@@ -110,6 +125,7 @@ class Gitolite {
     }
 
     /**
+     * Remove user key
      * @param $name
      */
     public function deleteUserKey($name) {
@@ -128,7 +144,7 @@ class Gitolite {
         }
 
         $repository = array(
-            'name' => $repositoryName,
+            'name'  => $repositoryName,
             'users' => array(),
         );
 
