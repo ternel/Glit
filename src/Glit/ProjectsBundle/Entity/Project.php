@@ -8,9 +8,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints as DoctrineAssert;
 /**
  * Glit\ProjectsBundle\Entity\Project
  *
- * @ORM\Table(name="projects", uniqueConstraints={@ORM\UniqueConstraint(name="projects_path_unq", columns={"path"})})
+ * @ORM\Table(name="projects", uniqueConstraints={@ORM\UniqueConstraint(name="projects_path_unq", columns={"account_id", "path"})})
  * @ORM\Entity
- * @DoctrineAssert\UniqueEntity(fields={"path"}, message="glit.project.path.allreadyexist")
+ * @DoctrineAssert\UniqueEntity(fields={"owner", "path"}, message="glit.project.path.allreadyexist")
  */
 class Project {
     /**
