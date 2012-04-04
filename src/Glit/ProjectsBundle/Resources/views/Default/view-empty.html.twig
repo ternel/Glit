@@ -7,11 +7,22 @@
     follow intruction below.{% endtrans %}
 </div>
 
-<div class="well">
+<header>
     <h1>{{ project.name }}</h1>
 
-    <p>{{ project.description }}</p>
-</div>
+    <p class="lead">{{ project.description }}</p>
+
+    <div class="subnav">
+        <ul class="nav nav-pills">
+            <li><a href="#global">Code</a></li>
+            <li><a href="#gridSystem">Issues</a></li>
+            <li><a href="#fluidGridSystem">Wiki</a></li>
+            <li><a href="#gridCustomization">Documents</a></li>
+            <li><a href="#layouts">Pull Request</a></li>
+            <li><a href="#layouts">Equipe</a></li>
+        </ul>
+    </div>
+</header>
 
 <div class="row-fluid">
     <h2>New Repository</h2>
@@ -30,6 +41,49 @@ git push -u origin master</pre>
 cd existing_git_repo
 git remote add origin {{ ssh }}
 git push -u origin master</pre>
+
+
+    <h2>New Repository</h2>
+<pre class="prettyprint">
+mkdir {{ project.path }}
+cd {{ project.path }}
+git init
+touch README
+git add README
+git commit -m "initial commit"
+git remote add origin {{ ssh }}
+git push -u origin master</pre>
+    <h2>New Repository</h2>
+<pre class="prettyprint">
+mkdir {{ project.path }}
+cd {{ project.path }}
+git init
+touch README
+git add README
+git commit -m "initial commit"
+git remote add origin {{ ssh }}
+git push -u origin master</pre>
+    <h2>New Repository</h2>
+<pre class="prettyprint">
+mkdir {{ project.path }}
+cd {{ project.path }}
+git init
+touch README
+git add README
+git commit -m "initial commit"
+git remote add origin {{ ssh }}
+git push -u origin master</pre>
+    <h2>New Repository</h2>
+<pre class="prettyprint">
+mkdir {{ project.path }}
+cd {{ project.path }}
+git init
+touch README
+git add README
+git commit -m "initial commit"
+git remote add origin {{ ssh }}
+git push -u origin master</pre>
+
 
 </div>
 
