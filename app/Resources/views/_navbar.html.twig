@@ -21,6 +21,8 @@
                             href="#contact">{% trans %}Documents{% endtrans %}</a></li>
                     <li{% block nav_class_active_teams %}{% endblock %}><a
                             href="#contact">{% trans %}Teams{% endtrans %}</a></li>
+                    <li{% block nav_class_active_admin %}{% endblock %}><a
+                            href="{{ path('glit_admin_default_index') }}">{% trans %}Admin{% endtrans %}</a></li>
                     {% endif %}
                 </ul>
 

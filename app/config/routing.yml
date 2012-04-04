@@ -12,7 +12,7 @@ GlitCoreBundle:
 GlitAdminBundle:
     resource: "@GlitAdminBundle/Controller/"
     type:     annotation
-    prefix:   /admin/
+    prefix:   /administration/
 
 GlitUserBundle:
     resource: "@GlitUserBundle/Controller/"
