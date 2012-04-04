@@ -17,7 +17,8 @@ class InstallCommand extends BaseInstallCommand {
      */
     protected function configure() {
         $this
-            ->setName('glit:install');
+            ->setName('glit:install')
+            ->addArgument('unix_user', \Symfony\Component\Console\Input\InputArgument::REQUIRED, 'Wich account the site is running ?');
     }
 
     /**
@@ -47,11 +48,13 @@ class InstallCommand extends BaseInstallCommand {
             return 102;
         }
 
+        $unixUser = $input->getOption('unix_user');
+
         $this->createGitUser();
 
-        $this->createGlitUser();
+        $this->createGlitUser($unixUser);
 
-        $this->installGitolite();
+        $this->installGitolite($unixUser);
 
         $this->installDatabase($output);
 
@@ -84,24 +87,18 @@ class InstallCommand extends BaseInstallCommand {
         $this->execProcess("adduser --system --shell /bin/sh --gecos 'git version control' --group --disabled-password --home /home/git git");
     }
 
-    private function createGlitUser() {
-        // Create User
-        $this->execProcess("adduser --disabled-login --gecos 'glit system' --home /home/glit glit");
-
+    private function createGlitUser($user) {
         // Add user to git group
-        $this->execProcess("usermod -a -G git glit");
+        $this->execProcess(sprintf("usermod -a -G git %s", $user));
 
         // Create sshKey
-        $this->execProcess("sudo -H -u glit ssh-keygen -q -N '' -t rsa -f /home/glit/.ssh/id_rsa");
+        $this->execProcess(sprintf("sudo -H -u %s ssh-keygen -q -N '' -t rsa -f /home/%s/.ssh/id_rsa", $user, $user));
 
         // add localhost public key to known_hosts
-        $this->execProcess('sudo -H -u glit echo "localhost" `cat /etc/ssh/ssh_host_rsa_key.pub` >> /home/glit/.ssh/known_hosts');
-
-        // Add sudoers rule : www-data can execute all command as glit
-        $this->execProcess('echo "www-data  ALL=(glit) NOPASSWD: ALL" > /etc/sudoers.d/glit && chmod 440 /etc/sudoers.d/glit');
+        $this->execProcess(sprintf('sudo -H -u %s echo "localhost" `cat /etc/ssh/ssh_host_rsa_key.pub` >> /home/%s/.ssh/known_hosts', $user, $user));
     }
 
-    private function installGitolite() {
+    private function installGitolite($user) {
         // Clone source
         $this->execProcess('cd /home/git && exec sudo -H -u git git clone git://github.com/sitaramc/gitolite /home/git/gitolite');
 
@@ -109,23 +106,23 @@ class InstallCommand extends BaseInstallCommand {
         $this->execProcess('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; /home/git/gitolite/src/gl-system-install"');
 
         // Copy glit publikKey
-        $this->execProcess('cp /home/glit/.ssh/id_rsa.pub /home/git/glit.pub && chmod 777 /home/git/glit.pub');
+        $this->execProcess(sprintf('cp /home/%s/.ssh/id_rsa.pub /home/git/%s.pub && chmod 777 /home/git/%s.pub', $user, $user, $user));
 
         // TODO : check if needed (retrieved from gitlabhq install script
         $this->execProcess('sudo -u git -H sed -i \'s/0077/0007/g\' /home/git/share/gitolite/conf/example.gitolite.rc');
 
         // Setup pubkey of glit
-        $this->execProcess('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/glit.pub"');
+        $this->execProcess(sprintf('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/%s.pub"', $user));
 
         // Set repositories dir permissions
         $this->execProcess('chmod -R g+rwX /home/git/repositories/');
         $this->execProcess('chown -R git:git /home/git/repositories/');
 
         // clone admin repo to be sure your user has access to gitolite
-        $this->execProcess('sudo -u glit -H git clone git@localhost:gitolite-admin.git /tmp/gitolite-admin');
+        $this->execProcess(sprintf('sudo -u %s -H git clone git@localhost:gitolite-admin.git /tmp/gitolite-admin', $user));
 
         // check if file is cloned
-        if (strpos($this->execProcess('sudo -u glit -H ls /tmp/gitolite-admin/keydir/glit.pub')->getOutput(), '/tmp/gitolite-admin/keydir/glit.pub') === false) {
+        if (strpos($this->execProcess(sprintf('sudo -u %s -H ls /tmp/gitolite-admin/keydir/%s.pub', $user, $user))->getOutput(), sprintf('/tmp/gitolite-admin/keydir/%s.pub', $user)) === false) {
             throw new \Exception('Installation failed. Unable to dump gitolite-admin');
         }
 
