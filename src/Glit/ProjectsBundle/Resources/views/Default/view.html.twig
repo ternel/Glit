@@ -2,10 +2,92 @@
 
 {% block content %}
 
-<div class="hero-unit">
+<header>
     <h1>{{ project.name }}</h1>
 
-    <p>{{ project.description }}</p>
+    <p class="lead">{{ project.description }}</p>
+
+    <div class="subnav">
+        <ul class="nav nav-pills">
+            <li><a href="#global">{% trans %}Code{% endtrans %}</a></li>
+            <li><a href="#gridSystem">{% trans %}Issues{% endtrans %}</a></li>
+            <li><a href="#fluidGridSystem">{% trans %}Wiki{% endtrans %}</a></li>
+            <li><a href="#gridCustomization">{% trans %}Documents{% endtrans %}</a></li>
+            <li><a href="#layouts">{% trans %}Pull Request{% endtrans %}</a></li>
+            <li><a href="#layouts">{% trans %}Team{% endtrans %}</a></li>
+        </ul>
+    </div>
+</header>
+
+<p class="last-commit small">
+    <i class="icon-time"></i>
+    {% trans with {'%branch%': branch} %}Latest commit to the <strong>%branch%</strong> branch{% endtrans %}
+</p>
+
+<div class="commit commit-tease js-details-container">
+    <p class="commit-title ">
+        <a href="#" class="message">{{ commit.summary }}</a>
+    </p>
+
+    <div class="commit-meta">
+        <a href="{{ path('glit_projects_commits_view', {'accountName': project.owner.uniqueName, 'projectPath': project.path, 'commitName': commit.hexname}) }}"
+           class="sha-block">commit <span class="sha">{{ commit.hexidentifier }}</span></a>
+
+        <div class="authorship">
+            <img class="avatar" height="20" src="{{ asset('img/no-avatar.png' )}}" width="20">
+                <span class="author-name">
+                    {% if commit_user.url is defined %}
+                    <a href="{{ commit_user.url }}" rel="author">
+                        {% endif %}
+                        {{ commit_user.name }}
+                        {% if commit_user.url is defined %}
+                    </a>
+                    {% endif %}
+                </span>
+            authored
+            <time datetime="{{ commit.date|date  }}"
+                  title="{{ commit.date|localeDate('medium', 'medium')  }}">{{ commit.date|relativeDate }}</time>
+        </div>
+    </div>
+</div>
+
+<div id="slider">
+
+    <ul class="breadcrumb">
+        <li class="active">{{ project.name }}<span class="divider">/</span></li>
+    </ul>
+
+    <div class="tree-browser-wrapper">
+        <table class="tree-browser table table-striped" cellpadding="0" cellspacing="0">
+            <thead>
+            <tr>
+                <th class="icon"></th>
+                <th class="name">{% trans %}name{% endtrans %}</th>
+                <th class="date">{% trans %}age{% endtrans %}</th>
+                <th class="message">{% trans %}message{% endtrans %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in tree %}
+            <tr>
+                <td class="icon"><i class="icon-{{object.is_dir ? 'folder-close' : 'file' }}"></i></td>
+                <td>{{ object.name }}</td>
+                <td>{{ object.last_updated|relativeDate }}</td>
+                <td>{{ object.last_updated_summary }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if readme is defined and readme is not empty %}
+    <div class="announce instapaper_body " data-path="/" id="readme">
+        <span class="name"><i class="icon icon-book"></i>{{ readme.name }}</span>
+
+        <div class="plain">{{ readme.object.data|markdown }}</div>
+    </div>
+    {% endif %}
+
 </div>
 
         {% endblock %}

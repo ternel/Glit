@@ -106,13 +106,13 @@ class InstallCommand extends BaseInstallCommand {
         $this->execProcess('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; /home/git/gitolite/src/gl-system-install"');
 
         // Copy glit publikKey
-        $this->execProcess(sprintf('cp /home/%s/.ssh/id_rsa.pub /home/git/%s.pub && chmod 777 /home/git/%s.pub', $user, $user, $user));
+        $this->execProcess(sprintf('cp /home/%s/.ssh/id_rsa.pub /home/git/%s.pub && chmod 777 /home/git/glit.pub', $user, $user, $user));
 
         // TODO : check if needed (retrieved from gitlabhq install script
         $this->execProcess('sudo -u git -H sed -i \'s/0077/0007/g\' /home/git/share/gitolite/conf/example.gitolite.rc');
 
         // Setup pubkey of glit
-        $this->execProcess(sprintf('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/%s.pub"', $user));
+        $this->execProcess(sprintf('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/glit.pub"', $user));
 
         // Set repositories dir permissions
         $this->execProcess('chmod -R g+rwX /home/git/repositories/');

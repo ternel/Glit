@@ -8,17 +8,19 @@ use Glit\UserBundle\Form as Type;
 use Glit\UserBundle\Form\Model as FormModel;
 
 class DefaultController extends Controller {
+
     public function viewAction(\Glit\UserBundle\Entity\User $user) {
-        $this->get('glit_gitolite.admin');
         $projects = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findByOwner($user->getId());
 
         if ($this->getCurrentUser()->getId() == $user->getId()) {
             // Own page
-            return $this->render('GlitUserBundle:Default:index-own.html.twig', array('user' => $user, 'own_projects' => $projects));
+            return $this->render('GlitUserBundle:Default:index-own.html.twig', array('user'        => $user,
+                                                                                    'own_projects' => $projects));
         }
         else {
             // Other Page
-            return $this->render('GlitUserBundle:Default:index-others.html.twig', array('user' => $user, 'own_projects' => $projects));
+            return $this->render('GlitUserBundle:Default:index-others.html.twig', array('user'        => $user,
+                                                                                       'own_projects' => $projects));
         }
     }
 
@@ -30,7 +32,7 @@ class DefaultController extends Controller {
         /** @var $user \Glit\UserBundle\Entity\User */
         $user = $this->getCurrentUser();
 
-        $formProfile = $this->createForm(new Type\ProfileType(), $user);
+        $formProfile  = $this->createForm(new Type\ProfileType(), $user);
         $formPassword = $this->createForm(new Type\ChangePasswordType(), new FormModel\ChangePassword($user));
 
         if ($this->getRequest()->getMethod() == 'POST') {
@@ -57,7 +59,8 @@ class DefaultController extends Controller {
             }
         }
 
-        return array('formProfile' => $formProfile->createView(), 'formPassword' => $formPassword->createView());
+        return array('formProfile'  => $formProfile->createView(),
+                     'formPassword' => $formPassword->createView());
     }
 
     /**
@@ -106,7 +109,7 @@ class DefaultController extends Controller {
                 }
 
                 /** @var $gitoliteAdmin \Glit\GitoliteBundle\Admin\Gitolite */
-                $gitoliteAdmin = $this->get('glit_gitolite.admin');
+                $gitoliteAdmin = $this->getGitoliteAdmin();
                 $gitoliteAdmin->saveUserKey($key->getKeyIdentifier(), $key->getPublicKey());
 
                 $em->flush();
@@ -119,7 +122,8 @@ class DefaultController extends Controller {
             }
         }
 
-        return array('form' => $form->createView(), 'key' => $key);
+        return array('form' => $form->createView(),
+                     'key'  => $key);
     }
 
     /**
@@ -137,7 +141,7 @@ class DefaultController extends Controller {
             $this->getDefaultEntityManager()->remove($key);
 
             /** @var $gitoliteAdmin \Glit\GitoliteBundle\Admin\Gitolite */
-            $gitoliteAdmin = $this->get('glit_gitolite.admin');
+            $gitoliteAdmin = $this->getGitoliteAdmin();
             $gitoliteAdmin->deleteUserKey($key->getKeyIdentifier());
 
             $this->getDefaultEntityManager()->flush();
@@ -188,5 +192,12 @@ class DefaultController extends Controller {
      */
     protected function getDefaultEntityManager() {
         return $this->getDoctrine()->getEntityManager();
+    }
+
+    /**
+     * @return \Glit\GitoliteBundle\Admin\Gitolite
+     */
+    protected function getGitoliteAdmin() {
+        return $this->get('glit_gitolite.admin');
     }
 }

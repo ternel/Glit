@@ -16,6 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints as DoctrineAssert;
  * @DoctrineAssert\UniqueEntity(fields={"keyIdentifier"}, message="glit.sshkey.keyIdentifier.allreadyexist")
  */
 abstract class SshKey extends BaseEntity {
+
     /**
      * @var integer $id
      *
@@ -114,6 +115,10 @@ abstract class SshKey extends BaseEntity {
     //</editor-fold>
 
     protected function generateKeyIdentifier($base) {
+        if (is_array($base)) {
+            $base = implode('_', $base);
+        }
+
         $key = \Gedmo\Sluggable\Util\Urlizer::urlize($base);
         $this->setKeyIdentifier($key . '-' . sha1($this->publicKey . microtime() . $this->getTitle()));
     }

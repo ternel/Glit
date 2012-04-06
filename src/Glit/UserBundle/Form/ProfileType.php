@@ -11,7 +11,6 @@ class ProfileType extends AbstractType {
         $builder->add('firstname');
         $builder->add('lastname');
         $builder->add('email', 'email');
-        $builder->add('uniqueName', 'text', array('label' => 'Username'));
     }
 
     public function getDefaultOptions(array $options) {

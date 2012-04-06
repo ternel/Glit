@@ -14,7 +14,11 @@ class CommonExtension extends \Twig_Extension {
 
     public function getFilters() {
         return array(
-            'relativeDate' => new \Twig_Filter_Method($this, 'relativeDate')
+            'relativeDate'  => new \Twig_Filter_Method($this, 'relativeDate'),
+            'localeDate'    => new \Twig_Filter_Method($this, 'localeDate'),
+
+            'debug'         => new \Twig_Filter_Method($this, 'debug'),
+            'type'          => new \Twig_Filter_Method($this, 'type'),
         );
     }
 
@@ -34,20 +38,20 @@ class CommonExtension extends \Twig_Extension {
         $reldays = ($time - $today) / 86400;
 
         if ($reldays >= 0 && $reldays < 1) {
-            return 'Today';
+            return 'today';
         }
         else if ($reldays >= 1 && $reldays < 2) {
-            return 'Tomorrow';
+            return 'tomorrow';
         }
         else if ($reldays >= -1 && $reldays < 0) {
-            return 'Yesterday';
+            return 'yesterday';
         }
 
         if (abs($reldays) < 7) {
             if ($reldays > 0) {
                 $reldays = floor($reldays);
 
-                return 'In ' . $reldays . ' day' . ($reldays != 1 ? 's' : '');
+                return 'in ' . $reldays . ' day' . ($reldays != 1 ? 's' : '');
             }
             else {
                 $reldays = abs(floor($reldays));
@@ -58,9 +62,40 @@ class CommonExtension extends \Twig_Extension {
 
         if (abs($reldays) < 182) {
             return date('l, j F', $time ? $time : time());
-        } else {
+        }
+        else {
             return date('l, j F, Y', $time ? $time : time());
         }
+    }
 
+    public function localeDate($date, $dateType = 'medium', $timeType = 'none') {
+        $values       = array(
+            'none'   => \IntlDateFormatter::NONE,
+            'short'  => \IntlDateFormatter::SHORT,
+            'medium' => \IntlDateFormatter::MEDIUM,
+            'long'   => \IntlDateFormatter::LONG,
+            'full'   => \IntlDateFormatter::FULL,
+        );
+        $dateFormater = \IntlDateFormatter::create(
+            \Locale::getDefault(),
+            isset($values[$dateType]) ? $values[$dateType] : $dateType,
+            isset($values[$timeType]) ? $values[$timeType] : $timeType,
+            date_default_timezone_get(),
+            \IntlDateFormatter::GREGORIAN
+        );
+        return $dateFormater->format($date->getTimestamp());
+    }
+
+    public function debug($data) {
+        return '<pre>' . print_r($data, true) . '</pre>';
+    }
+
+    public function type($data) {
+        if (is_object($data)) {
+            return get_class($data);
+        }
+        else {
+            return gettype($data);
+        }
     }
 }

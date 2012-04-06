@@ -1,11 +1,11 @@
 <?php
-
 namespace Glit\ProjectsBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Glit\GitoliteBundle\Git\Repository;
+use Glit\CoreBundle\Utils\StringObject;
 
 class DefaultController extends Controller {
 
@@ -41,19 +41,64 @@ class DefaultController extends Controller {
         $repository = $this->getGitoliteAdmin()->getRepository($project->getFullPath() . '.git');
 
         if ($repository->isNew()) {
-            // TODO : check right
-            return $this->render('GlitProjectsBundle:Default:view-empty.html.twig', array('project' => $project,
-                                                                                         'ssh'      => 'git@dev.glit.fr:' . $project->getFullPath() . '.git'));
+            // TODO : check right for organization
+            // Redirect to notFound has no write role on this project
+            if ($account->getUniqueName() == $this->getCurrentUser()->getUniqueName()) {
+                return $this->render('GlitProjectsBundle:Default:view-empty.html.twig', array('project' => $project,
+                                                                                             'ssh'      => 'git@dev.glit.fr:' . $project->getFullPath() . '.git'));
+            }
+            else {
+                throw $this->createNotFoundException(sprintf('Project %s not found', $projectPath));
+            }
         }
 
-        return array('project' => $project);
+        $branch = $project->getDefaultBranch();
+
+        /** @var $commit \Glit\GitoliteBundle\Git\Commit */
+        $commit      = $repository->getBranch($branch)->getTip();
+        $commit_user = array(
+            'name' => $commit->getAuthor()->name
+        );
+
+        // Find if user whose commit is in glit by email adresse
+        /** @var $glitUser \Glit\UserBundle\Entity\User */
+        $glitUser = $this->getDoctrine()->getRepository('GlitUserBundle:User')->findOneByEmail($commit->getAuthor()->email);
+        if (!is_null($glitUser)) {
+            $commit_user['name'] = $glitUser->getUniqueName();
+            $commit_user['url']  = $this->generateUrl('glit_core_account_view', array('uniqueName' => $glitUser->getUniqueName()));
+        }
+
+        $readme = null;
+
+        $tree = array();
+        foreach ($commit->getTree()->getNodes() as $treeNode) {
+            /** @var $treeNode \Glit\GitoliteBundle\Git\TreeNode */
+            if (StringObject::staticStartsWith($treeNode->getName(), 'README.', false) || strtoupper($treeNode->getName()) == 'README') {
+                $readme = $treeNode;
+            }
+
+            $tree[] = array(
+                'name'                 => $treeNode->getName(),
+                'is_dir'               => $treeNode->getIsDir(),
+                'last_updated'         => new \DateTime(), //$lastCommit->getDate(),
+                'last_updated_summary' => 'test' //$lastCommit->getSummary()
+            );
+        }
+
+        return array('project'     => $project,
+                     'commit_user' => $commit_user,
+                     'branch'      => $branch,
+                     'commit'      => $commit,
+                     'tree'        => $tree,
+                     'readme'      => $readme);
     }
 
     /**
      * @Route("{uniqueName}/projects/new")
      * @Template()
      */
-    public function newAction($uniqueName) {
+    public
+    function newAction($uniqueName) {
         $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($uniqueName);
         $scope   = $uniqueName == $this->getCurrentUser()->getUniqueName() ? 'user' : 'organization';
 
@@ -105,7 +150,8 @@ class DefaultController extends Controller {
     /**
      * @return \Glit\UserBundle\Entity\User
      */
-    protected function getCurrentUser() {
+    protected
+    function getCurrentUser() {
         return $this->get('security.context')->getToken()->getUser();
     }
 
@@ -114,21 +160,24 @@ class DefaultController extends Controller {
      * @param $action
      * @param $value
      */
-    protected function setFlash($action, $value) {
+    protected
+    function setFlash($action, $value) {
         $this->container->get('session')->setFlash($action, $value);
     }
 
     /**
      * @return \Doctrine\ORM\EntityManager
      */
-    protected function getDefaultEntityManager() {
+    protected
+    function getDefaultEntityManager() {
         return $this->getDoctrine()->getEntityManager();
     }
 
     /**
      * @return \Glit\GitoliteBundle\Admin\Gitolite
      */
-    protected function getGitoliteAdmin() {
+    protected
+    function getGitoliteAdmin() {
         return $this->get('glit_gitolite.admin');
     }
 }

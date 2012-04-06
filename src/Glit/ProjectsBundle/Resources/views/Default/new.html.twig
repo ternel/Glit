@@ -21,7 +21,10 @@
 
         <div class="control-group">
             {{ form_label(form.path) }}
-            {{ form_widget(form.path, {'attr': {'placeholder': 'example_project'}, 'prepend': url('glit_core_account_view', {'uniqueName': uniqueName}) ~ '/' }) }}
+            {{ form_widget(form.path, {
+                 'attr': {'placeholder': 'example_project'},
+                 'prepend': url('glit_core_account_view', {'uniqueName': uniqueName}) ~ '/',
+            }) }}
         </div>
 
         {{ form_rest(form) }}
@@ -31,5 +34,18 @@
         </div>
     </fieldset>
 </form>
+
+<script type="text/javascript">
+    function slugify(text) {
+        return text.replace(/[^-a-zA-Z0-9]+/g, '_').toLowerCase();
+    }
+
+    $(document).ready(function () {
+        $("#glit_projectsbundle_projecttype_name").live("change", function () {
+            var slug = slugify($(this).val());
+            $("#glit_projectsbundle_projecttype_path").val(slug);
+        });
+    });
+</script>
 
         {% endblock %}

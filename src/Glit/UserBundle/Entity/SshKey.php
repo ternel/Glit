@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class SshKey extends \Glit\CoreBundle\Entity\SshKey {
+
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
@@ -42,6 +43,6 @@ class SshKey extends \Glit\CoreBundle\Entity\SshKey {
     public function persist() {
         parent::persist();
 
-        $this->generateKeyIdentifier($this->user->getEmail());
+        $this->generateKeyIdentifier(array('user', $this->user->getUniqueName()));
     }
 }
