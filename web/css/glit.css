@@ -307,7 +307,7 @@ p.last-commit {
     -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa',endColorstr='#eaeaea')";
 }
 
-.tree-browser th.icon {
+.tree-browser th.icon, .tree-browser td.icon {
     width: 17px;
     padding-right: 2px;
     padding-left: 10px;
