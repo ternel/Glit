@@ -32,7 +32,7 @@ class StringObject {
         return explode($delimiter, $haystack);
     }
 
-    public static function staticStartsWith($haystack, $needle, $case) {
+    public static function staticStartsWith($haystack, $needle, $case = true) {
         if ($case) {
             return strpos($haystack, $needle, 0) === 0;
         }

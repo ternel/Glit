@@ -438,9 +438,13 @@ class Repository {
      * @param $name string name of the object (binary SHA1)
      * @returns GitObject the object
      */
-    public function getObject($name) {
+    public function getObject($name, $path = null) {
         list($type, $data) = $this->getRawObject($name);
         $object = GitObject::create($this, $type);
+        if ($path != null && $object instanceof Tree) {
+            /** @var $object Tree */
+            $object->setPath($path);
+        }
         $object->unserialize($data);
         assert($name == $object->getName());
         return $object;

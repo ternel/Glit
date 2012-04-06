@@ -14,6 +14,7 @@ class TreeInvalidPathError extends TreeError {
 class Tree extends GitObject {
 
     protected $nodes = array();
+    protected $path;
 
     public function __construct($repo) {
         parent::__construct($repo, GitObject::OBJ_TREE);
@@ -32,7 +33,7 @@ class Tree extends GitObject {
         $start       = 0;
         while ($start < strlen($data))
         {
-            $node = new TreeNode($this->repo);
+            $node = new TreeNode($this->repo, $this->path);
 
             $pos = strpos($data, "\0", $start);
             list($mode, $name) = explode(' ', substr($data, $start, $pos - $start), 2);
@@ -54,9 +55,9 @@ class Tree extends GitObject {
         $s = '';
         /* git requires nodes to be sorted */
         uasort($this->nodes, array('GitTree', 'nodecmp'));
-        foreach ($this->nodes as $node)
-        {
-            $s .= sprintf("%s %s\0%s", base_convert($node->getMode, 10, 8), $node->getName(), $node->getObject());
+        foreach ($this->nodes as $node) {
+            /** @var $node TreeNode */
+            $s .= sprintf("%s %s\0%s", base_convert($node->getMode(), 10, 8), $node->getName(), $node->getObject());
         }
         return $s;
     }
@@ -101,7 +102,9 @@ class Tree extends GitObject {
         }
         else
         {
+            /** @var $cur TreeNode */
             $cur = $this->repo->getObject($cur->getObjectHead());
+            /** @var $cur Tree */
             if (!($cur instanceof Tree)) {
                 throw new TreeInvalidPathError;
             }
@@ -121,22 +124,25 @@ class Tree extends GitObject {
 
         foreach ($this->nodes as $node)
         {
+            /** @var $node TreeNode */
+
             if ($node->getIsDir()) {
                 if ($node->getIsSubmodule()) {
                     $r[$node->getName() . ':submodule'] = $node->getObjectHead();
                 }
                 else
                 {
+                    /** @var $subtree Tree */
                     $subtree = $this->repo->getObject($node->getObjectHead());
                     foreach ($subtree->listRecursive() as $entry => $blob)
                     {
-                        $r[$node->getName() . '/' . $entry] = $blob;
+                        $r['/' . $node->getName() . $entry] = $blob;
                     }
                 }
             }
             else
             {
-                $r[$node->getName()] = $node->getObjectHead();
+                $r['/' . $node->getName()] = $node->getObjectHead();
             }
         }
 
@@ -166,7 +172,7 @@ class Tree extends GitObject {
         if (count($path) == 0) {
             /* create leaf node */
             if ($mode) {
-                $node = new TreeNode($this->repo);
+                $node = new TreeNode($this->repo, $this->path);
                 $node->setMode($mode);
                 $node->setName($name);
                 $node->setObjectHead($object);
@@ -189,14 +195,14 @@ class Tree extends GitObject {
                 if (!$node->getIsDir()) {
                     throw new TreeInvalidPathError;
                 }
-                $subtree = clone $this->repo->getObject($node->getObjectHead());
+                $subtree = clone $this->repo->getObject($node->getObjectHead(), $this->path);
             }
             else
             {
                 /* create new tree */
                 $subtree = new Tree($this->repo);
 
-                $node = new TreeNode($this->repo);
+                $node = new TreeNode($this->repo, $this->path);
                 $node->setMode(040000);
                 $node->setName($name);
                 $node->setIsDir(TRUE);
@@ -220,7 +226,7 @@ class Tree extends GitObject {
     const TREEDIFF_ADDED   = self::TREEDIFF_B;
     const TREEDIFF_CHANGED = 0x03;
 
-    static public function treeDiff(Tree $a_tree, Tree $b_tree) {
+    static public function treeDiff(Tree $a_tree, $b_tree) {
         $a_blobs = $a_tree ? $a_tree->listRecursive() : array();
         $b_blobs = $b_tree ? $b_tree->listRecursive() : array();
 
@@ -261,5 +267,21 @@ class Tree extends GitObject {
         }
 
         return $changes;
+    }
+
+    /**
+     * returns the relative path of an object in this Tree
+     *
+     * @param $obj TreeNode The object to find the path for
+     * @return string or null if not found
+     **/
+    public function getPath(TreeNode $obj) {
+        $nodes = $this->listRecursive();
+        $path  = array_search($obj, $nodes, true);
+        return false === $path ? null : $path;
+    }
+
+    public function setPath($path) {
+        $this->path = $path;
     }
 }

@@ -170,18 +170,34 @@ class Commit extends GitObject {
     }
 
     /**
-     * @copybrief Tree::find()
-     *
      * This is a convenience function calling GitTree::find() on the commit's
      * tree.
-     *
-     * @copydetails Tree::find()
+     * @param $path
+     * @return GitObject|Tree|TreeNode|null|string
      */
     public function find($path) {
         return $this->getTree()->find($path);
     }
 
-    static public function treeDiff(Commit $a, Commit $b) {
+    public function diffWithPreviousCommit() {
+        $history = $this->getHistory();
+        $count   = count($history);
+
+        if ($count > 1) {
+            /** @var $previous Commit */
+            $previous = $history[count($history) - 2];
+            return self::treeDiff($this, $previous);
+        }
+        else {
+            return self::treeDiff($this);
+        }
+    }
+
+    static public function treeDiff(Commit $a, $b = null) {
         return Tree::treeDiff($a ? $a->getTree() : NULL, $b ? $b->getTree() : NULL);
+    }
+
+    public function getParents() {
+        return $this->parents;
     }
 }
