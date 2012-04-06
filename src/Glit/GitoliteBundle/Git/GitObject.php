@@ -17,8 +17,8 @@ abstract class GitObject implements \Serializable {
     /**
      * returns the integer type id of the object
      *
-     * @param (string) $name The name of the object
-     * @return (integer) The type of the object
+     * @param string $name The name of the object
+     * @return integer The type of the object
      **/
     static public function staticGetTypeID($name) {
         switch ($name)
@@ -38,8 +38,8 @@ abstract class GitObject implements \Serializable {
     /**
      * returns the type of the object
      *
-     * @param (integer) id of the object
-     * @return (string) type of object
+     * @param integer $id id of the object
+     * @return string type of object
      **/
     static public function staticGetTypeName($id) {
         switch ($id)
@@ -56,154 +56,81 @@ abstract class GitObject implements \Serializable {
         throw new \Exception(sprintf('unknown type id: %s', $id));
     }
 
-    protected
-        $git = null, // the git repository this object belongs to
-        $data = array(), // the data this object contains
-        $sha = null, // (SHA) the sha of this object
-        $isLoaded = false, // (bool) is the object loaded from the git repos?
-        $exists = false, // (bool) does the object exist (is written) in the git repos?
-        $serialized = null; // (string) containing the serialized version of this object
-
     /**
-     * Constructor, takes extra arguments for lazy loading git objects
-     *
-     * @return void
-     * @author Sjoerd de Jong
-     **/
-    public function __construct(Repository $git, $sha = null) {
-        $this->git = $git;
-        if (!is_null($sha)) {
-            $this->sha    = $sha instanceof SHA ? $sha : new SHA($sha);
-            $this->exists = true;
-        }
-    }
+     * @var Repository The repository this object belongs to.
+     */
+    protected $repo;
 
-    /**
-     * Clone makes sure the cloned object is writable again
-     *
-     * @return void
-     * @author Sjoerd de Jong
-     **/
-    public function __clone() {
-        if ($this->exists && !$this->isLoaded) {
-            //load the old object
-            $this->load();
-        }
-        // unlock the object
-        $this->sha        = null;
-        $this->isLoaded   = false;
-        $this->exists     = false;
-        $this->serialized = null;
-    }
-
-    public function setSerialized($serialized) {
-        if (!is_null($this->serialized)) {
-            throw new\Exception("Can only set serialization on an uncomputed, not loaded object");
-        }
-        $this->serialized = $serialized;
-    }
-
-    public function getGit() {
-        return $this->git;
-    }
-
-    public function isReadOnly() {
-        return !is_null($this->sha);
-    }
+    protected $type;
+    protected $name = NULL;
 
     /**
      * @brief Get the object's cached SHA-1 hash value.
      *
-     * @returns (SHA) The hash value (binary sha1).
+     * @return string The hash value (binary sha1).
      */
-    public function getSha() {
-        if (is_null($this->sha)) {
-            $data      = $this->serialize();
-            $this->sha = SHA::hash(sprintf("%s %d\0%s", $this->getTypeName(), strlen($data), $data));
-        }
-        return $this->sha;
-    }
-
-    public function isLoaded() {
-        return $this->isLoaded;
-    }
-
-    public function exists() {
-        return $this->exists;
-    }
-
-    public function load() {
-        if (!$this->exists()) {
-            throw new\Exception('Can only load data of a locked object');
-        }
-
-        if (is_null($this->serialized)) {
-            list($type, $this->serialized) = $this->git->getRawObject($this->getSha());
-
-            if ($type !== $this->getTypeName()) {
-                throw new\Exception('Error loading data of type \'' . $type . '\' into object of type \'' . __CLASS__ . '\'');
-            }
-        }
-
-        $this->unserialize($this->serialized);
-        $this->isLoaded = true;
-    }
-
-    public function __set($name, $value) {
-        if ($this->isReadOnly()) {
-            throw new\Exception("Cannot set properties on a locked object");
-        }
-
-        if (!in_array($name, array_keys($this->data))) {
-            throw new\Exception("$name is not a settable property of object " . get_class($this));
-        }
-
-        $this->data[$name] = $value;
-    }
-
-    public function __get($name) {
-        if ($this->exists() && !$this->isLoaded()) {
-            $this->load();
-        }
-
-        if (!in_array($name, array_keys($this->data))) {
-            throw new\Exception("$name is not a gettable property of object " . get_class($this));
-        }
-
-        return isset($this->data[$name]) ? $this->data[$name] : null;
+    public function getName() {
+        return $this->name;
     }
 
     /**
-     * get the objects type name, either 'blob', 'tree', or 'commit'
+     * @brief Get the object's type.
      *
-     * @return (string) the type name
-     * @author Sjoerd de Jong
-     **/
-    abstract public function getTypeName();
-
-    /**
-     * Get the object's type number
-     *
-     * @returns (integer) One of self::OBJ_COMMIT, self::OBJ_TREE or GIT::OBJ_BLOB.
+     * @returns (integer) One of Git::OBJ_COMMIT, Git::OBJ_TREE or
+     * GIT::OBJ_BLOB.
      */
-    public function getTypeId() {
-        return self::staticGetTypeId($this->getTypeName());
+    public function getType() {
+        return $this->type;
     }
 
     /**
-     * @brief Get the string representation of an object.
+     * @brief Create a GitObject of the specified type.
      *
-     * @returns The serialized representation of the object, as it would be
-     * stored by git.
+     * @param $repo (Git) The repository the object belongs to.
+     * @param $type (integer) Object type (one of Git::OBJ_COMMIT,
+     * Git::OBJ_TREE, Git::OBJ_BLOB).
+     * @return GitObject A new GitCommit, GitTree or GitBlob object respectively.
      */
-    public function serialize() {
-        if (is_null($this->serialized)) {
-            $this->serialized = $this->_serialize();
+    static public function create($repo, $type) {
+        if ($type == self::OBJ_COMMIT) {
+            return new Commit($repo);
         }
-        return $this->serialized;
+        if ($type == self::OBJ_TREE) {
+            return new Tree($repo);
+        }
+        if ($type == self::OBJ_BLOB) {
+            return new Blob($repo);
+        }
+        throw new \Exception(sprintf('unhandled object type %d', $type));
     }
 
-    abstract protected function _serialize();
+    /**
+     * @brief Internal function to calculate the hash value of a git object of the
+     * current type with content $data.
+     *
+     * @param $data (string) The data to hash.
+     * @returns (string) The hash value (binary sha1).
+     */
+    protected function hash($data) {
+        $hash = hash_init('sha1');
+        hash_update($hash, self::staticGetTypeName($this->type));
+        hash_update($hash, ' ');
+        hash_update($hash, strlen($data));
+        hash_update($hash, "\0");
+        hash_update($hash, $data);
+        return hash_final($hash, TRUE);
+    }
+
+    /**
+     * @brief Internal constructor for use from derived classes.
+     *
+     * Never use this function except from a derived class. Use the
+     * constructor of a derived class, create() or Git::getObject() instead.
+     */
+    public function __construct($repo, $type) {
+        $this->repo = $repo;
+        $this->type = $type;
+    }
 
     /**
      * @brief Populate this object with values from its string representation.
@@ -214,19 +141,33 @@ abstract class GitObject implements \Serializable {
      * @param $data (string) The serialized representation of an object, as
      * it would be stored by git.
      */
-    public function unserialize($serialized) {
-        throw new\Exception('Unserialize neeeds to be overridden');
+    public function unserialize($data) {
+        $this->name = $this->hash($data);
+        $this->_unserialize($data);
     }
 
+    protected abstract function _unserialize($data);
+
     /**
-     * __tostring prints the git representation of this object
-     * please note that is locks the object, as it calls getSha()
+     * @brief Get the string representation of an object.
      *
-     * @return void
-     * @author Sjoerd de Jong
-     **/
-    public function __tostring() {
-        return sprintf("%s", $this->getSha()->hex());
+     * @returns string The serialized representation of the object, as it would be
+     * stored by git.
+     */
+    public function serialize() {
+        return $this->_serialize();
+    }
+
+    protected abstract function _serialize();
+
+    /**
+     * @brief Update the SHA-1 name of an object.
+     *
+     * You need to call this function after making changes to attributes in
+     * order to have getName() return the correct hash.
+     */
+    public function rehash() {
+        $this->name = $this->hash($this->serialize());
     }
 
     /**
@@ -234,50 +175,26 @@ abstract class GitObject implements \Serializable {
      * given at creation time.
      */
     public function write() {
-        if ($this->exists()) {
-            return true;
-        }
-
-        $sha1 = $this->getSha()->hex();
-        $path = sprintf('%s/objects/%s/%s', $this->git->getDir(), substr($sha1, 0, 2), substr($sha1, 2));
-
+        $sha1 = SHA::sha1_hex($this->name);
+        $path = $this->repo->getInternalPath()->buildSubPath(array(
+                                                                  'objects',
+                                                                  substr($sha1, 0, 2),
+                                                                  substr($sha1, 2)
+                                                             ));
         if (file_exists($path)) {
-            return false;
+            return FALSE;
         }
-
-        if (!is_dir(dirname($path))) {
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
             mkdir(dirname($path), 0770);
         }
-
         $f = fopen($path, 'ab');
         flock($f, LOCK_EX);
         ftruncate($f, 0);
         $data = $this->serialize();
-        $data = $this->getTypeName() . ' ' . strlen($data) . "\0" . $data;
+        $data = self::staticGetTypeName($this->type) . ' ' . strlen($data) . "\0" . $data;
         fwrite($f, gzcompress($data));
         fclose($f);
-
-        $this->exists = true;
         return TRUE;
-    }
-
-    /**
-     * equalTo compares this object to one or an array of other objects. If all
-     * objects are the same it returns true
-     *
-     * @return (bool) True if all objects are the same
-     * @author Sjoerd de Jong
-     **/
-    public function equalTo($object) {
-        if (is_array($object)) {
-            $allEqual = true;
-            foreach ($object as $obj) {
-                $allEqual &= $this->equalTo($obj);
-            }
-            return $allEqual;
-        }
-        else {
-            return $object instanceof GitObject && $object->getSha()->hex() === $this->getSha()->hex();
-        }
     }
 }

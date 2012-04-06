@@ -1,53 +1,80 @@
 <?php
 namespace Glit\GitoliteBundle\Git;
 
-/**
- * @property $tree
- * @property $parents
- * @property $author
- * @property $committer
- * @property $summary
- * @property $detail
- */
+use Glit\GitoliteBundle\Utils\SHA;
+
 class Commit extends GitObject {
 
-    protected
-        $data = array(
-        'tree'      => null, // (GitTree) The tree referenced by this commit
-        'parents'   => array(), // (array of GitCommit) Parent commits of this commit
-        'author'    => null, // (CommitStamp) The author of this commit
-        'committer' => null, // (CommitStamp) The committer of this commit
-        'summary'   => "", // (string) Commit summary, i.e. the first line of the commit message
-        'detail'    => "" // (string) Everything after the first line of the commit message
-    ),
-        $commitHistory = null; // cache for history of this object
+    /**
+     * @brief (string) The tree referenced by this commit, as binary sha1
+     * string.
+     */
+    protected $tree;
 
-    public function __construct($git, $sha = null) {
+    /**
+     * @brief (array of string) Parent commits of this commit, as binary sha1
+     * strings.
+     */
+    protected $parents;
 
-        if ($git instanceof Commit || is_array($git)) {
-            //assume a new commit to be based on a previous commit
-            //$git represents the parents of the new object
-            $parents = is_array($git) ? $git : array($git);
-            /** @var $firstParent Commit */
-            $firstParent = $parents[0];
-            parent::__construct($firstParent->getRepository());
-            $this->parents = $parents;
-            $this->tree    = clone $firstParent->tree;
-        }
-        else
-        {
-            parent::__construct($git, $sha);
-        }
+    /**
+     * @var CommitStamp The author of this commit.
+     */
+    protected $author;
+
+    /**
+     * @var CommitStamp The committer of this commit.
+     */
+    protected $committer;
+
+    /**
+     * @var string Commit summary, i.e. the first line of the commit message.
+     */
+    protected $summary;
+
+    /**
+     * @var string Everything after the first line of the commit message.
+     */
+    protected $detail;
+
+    protected $history;
+
+    public function getAuthor() {
+        return $this->author;
     }
 
-    public function getTypeName() {
-        return 'commit';
+    public function getCommiter() {
+        return $this->committer;
     }
 
-    public function unserialize($data) {
+    public function getSummary() {
+        return $this->summary;
+    }
+
+    public function getDetail() {
+        return $this->detail;
+    }
+
+    public function getDate() {
+        return $this->author->time;
+    }
+
+    public function getHexIdentifier() {
+        return substr(SHA::sha1_hex($this->getName()), 0, 10);
+    }
+
+    public function getHexName() {
+        return SHA::sha1_hex($this->getName());
+    }
+
+    public function __construct(Repository $repo) {
+        parent::__construct($repo, GitObject::OBJ_COMMIT);
+
+    }
+
+    public function _unserialize($data) {
         $lines = explode("\n", $data);
         unset($data);
-
         $meta = array('parent' => array());
         while (($line = array_shift($lines)) != '')
         {
@@ -61,47 +88,29 @@ class Commit extends GitObject {
             }
         }
 
-        //$this->data['tree'] = new GitTree($this->git, $meta['tree'][0]);
+        $this->tree    = SHA::sha1_bin($meta['tree'][0]);
+        $this->parents = array_map('Glit\GitoliteBundle\Utils\SHA::sha1_bin', $meta['parent']);
+        $this->author  = new CommitStamp();
+        $this->author->unserialize($meta['author'][0]);
+        $this->committer = new CommitStamp();
+        $this->committer->unserialize($meta['committer'][0]);
 
-        $parents = array();
-        foreach ($meta['parent'] as $sha)
-        {
-            $parents[] = new Commit($this->git, $sha);
-        }
-        $this->data['parents'] = $parents;
+        $this->summary = array_shift($lines);
+        $this->detail  = implode("\n", $lines);
 
-        $this->data['author'] = new CommitStamp();
-        $this->data['author']->unserialize($meta['author'][0]);
-
-        $this->data['committer'] = new CommitStamp();
-        $this->data['committer']->unserialize($meta['committer'][0]);
-
-        $this->data['summary'] = array_shift($lines);
-        $this->data['detail']  = implode("\n", $lines);
+        $this->history = NULL;
     }
 
-    public function setMessage($message) {
-        $message       = explode("\n", $message, 2);
-        $this->summary = isset($message[0]) ? $message[0] : "";
-        $this->detail  = isset($message[1]) ? $message[1] : "";
-    }
-
-    protected function _serialize() {
+    public function _serialize() {
         $s = '';
-        //$s = sprintf("tree %s\n", $this->tree->getSha()->hex());
-
+        $s .= sprintf("tree %s\n", SHA::sha1_hex($this->tree));
         foreach ($this->parents as $parent)
         {
-            $s .= sprintf("parent %s\n", $parent->getSha()->hex());
+            $s .= sprintf("parent %s\n", SHA::sha1_hex($parent));
         }
-
-        $s .= sprintf("author %s\n", $this->data['author']->serialize());
-        $s .= sprintf("committer %s\n", $this->data['committer']->serialize());
-
-        $s .= "\n";
-
-        $s .= $this->summary . "\n" . $this->detail;
-
+        $s .= sprintf("author %s\n", $this->author->serialize());
+        $s .= sprintf("committer %s\n", $this->committer->serialize());
+        $s .= "\n" . $this->summary . "\n" . $this->detail;
         return $s;
     }
 
@@ -111,40 +120,68 @@ class Commit extends GitObject {
      * @returns (array of GitCommit)
      */
     public function getHistory() {
-        if (is_null($this->commitHistory)) {
-            /* count incoming edges */
-            $inc = array();
+        if ($this->history) {
+            return $this->history;
+        }
 
-            $queue = array($this);
-            while (($commit = array_shift($queue)) !== NULL)
+        /* count incoming edges */
+        $inc = array();
+
+        $queue = array($this);
+        while (($commit = array_shift($queue)) !== NULL)
+        {
+            foreach ($commit->parents as $parent)
             {
-                foreach ($commit->parents as $parent)
-                {
-                    if (!isset($inc[(string)$parent])) {
-                        $inc[(string)$parent] = 1;
-                        $queue[]              = $parent;
-                    }
-                    else
-                    {
-                        $inc[(string)$parent]++;
-                    }
+                if (!isset($inc[$parent])) {
+                    $inc[$parent] = 1;
+
+                    $queue[] = $this->repo->getObject($parent);
                 }
-            }
-
-            $queue               = array($this);
-            $this->commitHistory = array();
-            while (($commit = array_pop($queue)) !== NULL)
-            {
-                array_unshift($this->commitHistory, $commit);
-                foreach ($commit->parents as $parent)
+                else
                 {
-                    if (--$inc[(string)$parent] == 0) {
-                        $queue[] = $parent;
-                    }
+                    $inc[$parent]++;
                 }
             }
         }
 
-        return $this->commitHistory;
+        $queue = array($this);
+        $r     = array();
+        while (($commit = array_pop($queue)) !== NULL)
+        {
+            array_unshift($r, $commit);
+            foreach ($commit->parents as $parent)
+            {
+                if (--$inc[$parent] == 0) {
+                    $queue[] = $this->repo->getObject($parent);
+                }
+            }
+        }
+
+        $this->history = $r;
+        return $r;
+    }
+
+    /**
+     * Return the current commit tree
+     * @return Tree
+     */
+    public function getTree() {
+        return $this->repo->getObject($this->tree);
+    }
+
+    /**
+     * @copybrief Tree::find()
+     *
+     * This is a convenience function calling GitTree::find() on the commit's
+     * tree.
+     *
+     * @copydetails Tree::find()
+     */
+    public function find($path) {
+        return $this->getTree()->find($path);
+    }
+
+    static public function treeDiff(Commit $a, Commit $b) {
+        return Tree::treeDiff($a ? $a->getTree() : NULL, $b ? $b->getTree() : NULL);
     }
 }

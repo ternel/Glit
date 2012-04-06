@@ -1,0 +1,8 @@
+{% for group in groups %}
+<h3 class="commit-group-heading">{{ group.date|localeDate }}</h3>
+<ol class="commit-group">
+    {% for commit in group.commits %}
+    {% include 'GlitGitoliteBundle:Commits:commit-item.html.twig' with {'commit': commit} %}
+    {% endfor %}
+</ol>
+        {% endfor %}

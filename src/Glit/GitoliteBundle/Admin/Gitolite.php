@@ -1,16 +1,20 @@
 <?php
 namespace Glit\GitoliteBundle\Admin;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Glit\GitoliteBundle\Git\Repository;
 use Glit\CoreBundle\Utils\SystemPathObject;
 
 class Gitolite {
 
+    /** @var LoggerInterface */
     private $logger;
+    /** @var ContainerInterface */
+    private $container;
     private $adminUri = 'git@localhost:gitolite-admin.git';
-    private $localDir = '/tmp/glit-gitolite-admin/';
-    private $gitoliteDir;
+    private $localDir;
+    private $repoDir;
     private $gitoliteRepoDir;
 
     /** @var Repository */
@@ -19,11 +23,13 @@ class Gitolite {
     private $sshKeys;
     private $repositories;
 
-    public function __construct(LoggerInterface $logger) {
-        $this->logger = $logger;
+    public function __construct(LoggerInterface $logger, ContainerInterface $container) {
+        $this->logger    = $logger;
+        $this->container = $container;
 
-        $this->gitoliteDir     = new SystemPathObject('/home/git/');
-        $this->gitoliteRepoDir = $this->gitoliteDir->buildSubPath('repositories');
+        $this->localDir        = $this->container->getParameter('glit.gitolite.tmp_admin');
+        $this->gitoliteRepoDir = new SystemPathObject($this->container->getParameter('glit.gitolite.repositories'));
+        $this->repoDir         = $this->gitoliteRepoDir->buildSubPath('gitolite-admin.git');
 
         $this->initialize();
     }
@@ -33,7 +39,7 @@ class Gitolite {
             $this->gitRepository = Repository::cloneRepository($this->adminUri, $this->localDir, $this->logger);
         }
         else {
-            $this->gitRepository = new Repository($this->localDir, $this->logger);
+            $this->gitRepository = new Repository($this->localDir, $this->logger, $this->repoDir);
         }
 
         // Load keys and repository
@@ -54,6 +60,7 @@ class Gitolite {
         $lines = explode("\n", $this->gitRepository->readFile('conf' . DS . 'gitolite.conf'));
 
         $tempRepository = null;
+        $cleaned        = false;
 
         foreach ($lines as $line) {
             $temp = array_merge(array_filter(explode(" ", $line), 'strlen'));
@@ -73,8 +80,20 @@ class Gitolite {
                 );
             }
             else {
-                $tempRepository['users'][$temp[2]] = $temp[0];
+                $users = array_merge(array_filter(explode(' ', $temp[2])));
+
+                foreach ($users as $user) {
+                    if (!isset($this->sshKeys[$user])) {
+                        $cleaned = true;
+                        continue;
+                    }
+                    $tempRepository['users'][$user] = $temp[0];
+                }
             }
+        }
+
+        if ($cleaned) {
+            $this->writeRepositoriesConf("Cleaning repository configuration");
         }
 
         $this->repositories[$tempRepository['name']] = $tempRepository;
@@ -98,6 +117,9 @@ class Gitolite {
 
         $confFile = 'conf' . DS . 'gitolite.conf';
         $this->gitRepository->saveFile($confFile, $conf);
+        if ($commitMessage == null) {
+            return $confFile;
+        }
         $this->gitRepository->commitFile($confFile, $commitMessage);
         $this->gitRepository->push();
     }
@@ -132,10 +154,21 @@ class Gitolite {
         $file = 'keydir' . DS . $name . '.pub';
 
         unset ($this->sshKeys[$name]);
-        $this->gitRepository->deleteFile($file);
+        // Remove key from repositories
+        foreach ($this->repositories as $key => $repository) {
+            if (isset($this->repositories[$key]['users'][$name])) {
+                unset($this->repositories[$key]['users'][$name]);
+            }
+        }
 
-        $this->gitRepository->commitFile($file, 'remove ssh key named ' . $name);
+        $this->gitRepository->deleteFile($file);
+        $confFile = $this->writeRepositoriesConf(null);
+        $this->gitRepository->commitFile(array($file, $confFile), 'remove ssh key named ' . $name);
         $this->gitRepository->push();
+    }
+
+    public function getHistory() {
+        return $this->gitRepository->getBranch('master')->getHistory();
     }
 
     public function createRepository($repositoryName, $owner) {
@@ -200,6 +233,10 @@ class Gitolite {
             'Remove user(s) (%s) from repository %s',
             implode(', ', $userKey),
             $repositoryName));
+    }
+
+    public function getSshKeys() {
+        return $this->sshKeys;
     }
 
 }

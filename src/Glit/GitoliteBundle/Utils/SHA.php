@@ -6,61 +6,26 @@ namespace Glit\GitoliteBundle\Utils;
  */
 class SHA {
 
-    protected
-        $bin = null;
-
-    function __construct($sha = null) {
-        if (!is_null($sha)) {
-            if (is_numeric("0x" . $sha) && strlen($sha) == 40) {
-                // hex sha value
-                $this->bin = (string)pack('H40', $sha);
-            }
-            else
-            {
-                $hex = bin2hex($sha);
-                if (is_numeric("0x" . $hex) && strlen($hex) == 40) {
-                    $this->bin = (string)$sha;
-                }
-                else
-                {
-                    throw new Exception("SHA accepts only a valid hex or bin SHA string as argument, supplied '" . $sha . "'");
-                }
-            }
-        }
+    /**
+     * @relates Git
+     * @brief Convert a SHA-1 hash from hexadecimal to binary representation.
+     *
+     * @param $hex (string) The hash in hexadecimal representation.
+     * @returns (string) The hash in binary representation.
+     */
+    public static function sha1_bin($hex) {
+        return pack('H40', $hex);
     }
 
-    public function fromData($data) {
-        $this->bin = (string)self::hash($data);
+    /**
+     * @relates Git
+     * @brief Convert a SHA-1 hash from binary to hexadecimal representation.
+     *
+     * @param $bin (string) The hash in binary representation.
+     * @returns (string) The hash in hexadecimal representation.
+     */
+    public static function sha1_hex($bin) {
+        return bin2hex($bin);
     }
 
-    public function h($count = null) {
-        return is_null($count) ? $this->hex() : substr($this->hex(), 0, $count);
-    }
-
-    public function b64() {
-        return base64_encode($this->bin());
-    }
-
-    public function b() {
-        return $this->bin();
-    }
-
-    public function __toString() {
-        return $this->bin();
-    }
-
-    public function bin() {
-        if (is_null($this->bin)) {
-            throw new Exception("The SHA hash is not computed");
-        }
-        return $this->bin;
-    }
-
-    public function hex() {
-        return bin2hex($this->bin);
-    }
-
-    static public function hash($data, $raw = true) {
-        return new SHA(hash('sha1', $data, $raw));
-    }
 }

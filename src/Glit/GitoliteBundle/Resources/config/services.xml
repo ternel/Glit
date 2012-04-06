@@ -12,6 +12,11 @@
         <service id="glit_gitolite.admin" class="%glit_gitolite.admin.gitolite.class%">
             <argument type="service" id="logger"/>
         </service>
+
+        <!-- Twig Common Extension -->
+        <service id="glit_gitolite_commits" class="Glit\GitoliteBundle\Twig\CommitsExtension">
+            <tag name="twig.extension"/>
+        </service>
     </services>
 
 </container>

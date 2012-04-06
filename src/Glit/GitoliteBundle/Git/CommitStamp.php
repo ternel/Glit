@@ -5,6 +5,7 @@ class CommitStamp {
 
     public $name;
     public $email;
+    /** @var \DateTime */
     public $time;
     public $offset;
 
@@ -31,9 +32,12 @@ class CommitStamp {
     public function unserialize($data) {
         assert(preg_match('/^(.+?)\s+<(.+?)>\s+(\d+)\s+([+-]\d{4})$/', $data, $m));
 
-        $this->name   = $m[1];
-        $this->email  = $m[2];
-        $this->time   = intval($m[3]);
+        $this->name  = $m[1];
+        $this->email = $m[2];
+
+        $this->time = new \DateTime();
+        $this->time->setTimestamp(intval($m[3]));
+
         $off          = intval($m[4]);
         $this->offset = intval($off / 100) * 3600 + ($off % 100) * 60;
     }
@@ -43,6 +47,6 @@ class CommitStamp {
             throw new \Exception('cannot serialize sub-minute timezone offset');
         }
 
-        return sprintf('%s <%s> %d %+05d', $this->name, $this->email, $this->time, intval($this->offset / 3600) * 100 + intval($this->offset / 60) % 60);
+        return sprintf('%s <%s> %d %+05d', $this->name, $this->email, $this->time->getTimestamp(), intval($this->offset / 3600) * 100 + intval($this->offset / 60) % 60);
     }
 }

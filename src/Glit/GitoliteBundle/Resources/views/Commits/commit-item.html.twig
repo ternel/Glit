@@ -1,0 +1,16 @@
+<li class="commit commit-group-item">
+    <img class="avatar" height="36" src="{{ asset('img/no-avatar.png' )}}" width="36">
+
+    <p class="commit-title">
+        {{ commit.summary }}
+    </p>
+
+    <div class="commit-meta">
+        <div class="authorship">
+            <span class="author_name">{{ commit.author.name }}</span>
+            {% trans %}authored{% endtrans %}
+            <time datetime="{{ commit.date|date  }}"
+                  title="{{ commit.date|date  }}">{{ commit.date|relativeDate }}</time>
+        </div>
+    </div>
+</li>
