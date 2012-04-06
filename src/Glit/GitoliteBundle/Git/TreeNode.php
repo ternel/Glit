@@ -95,11 +95,6 @@ class TreeNode {
 
                 $diff = $commit->diffWithPreviousCommit();
 
-                echo 'Path : ' . $this->getPath();
-                echo ' | Diff : ';
-                var_dump(array_keys($diff));
-                echo '<br />';
-
                 foreach (array_keys($diff) as $object) {
                     if (StringObject::staticStartsWith($object, $this->getPath())) {
                         $this->history[] = $commit;
@@ -107,8 +102,6 @@ class TreeNode {
                     }
                 }
             }
-
-            echo 'History for ' . $this->getPath() . ' count ' . count($this->history) . '<br />';
         }
 
         return $this->history;
@@ -121,5 +114,9 @@ class TreeNode {
     public function getLastCommit(Commit $start) {
         $history = $this->getHistory($start);
         return $history[0];
+    }
+
+    public function getDiff() {
+
     }
 }

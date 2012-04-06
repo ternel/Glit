@@ -25,12 +25,6 @@ class User extends Account implements UserInterface {
     private $password;
 
     /**
-     * @ORM\Column(type="string", length="100")
-     * @Assert\Email()
-     */
-    private $email;
-
-    /**
      * @ORM\Column(type="string", length="50")
      */
     private $firstname;
@@ -49,6 +43,11 @@ class User extends Account implements UserInterface {
      * @ORM\OneToMany(targetEntity="SshKey", mappedBy="user", cascade={"persist", "remove"})
      */
     private $sshKeys;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Email", mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $emails;
 
     /**
      * @ORM\Column(type="boolean", name="require_password_change")
@@ -172,21 +171,14 @@ class User extends Account implements UserInterface {
     }
 
     /**
-     * Set email
-     *
-     * @param string $email
-     */
-    public function setEmail($email) {
-        $this->email = $email;
-    }
-
-    /**
      * Get email
      *
      * @return string
      */
     public function getEmail() {
-        return $this->email;
+        return $this->emails->filter(function($item) {
+            return $item->getIsDefault();
+        })->first();
     }
 
     /**
@@ -264,7 +256,7 @@ class User extends Account implements UserInterface {
     /**
      * Add sshKeys
      *
-     * @param Glit\UserBundle\Entity\SshKey $sshKeys
+     * @param \Glit\UserBundle\Entity\SshKey $sshKeys
      */
     public function addSshKey(\Glit\UserBundle\Entity\SshKey $sshKeys) {
         $this->sshKeys[] = $sshKeys;
@@ -273,7 +265,7 @@ class User extends Account implements UserInterface {
     /**
      * Get sshKeys
      *
-     * @return Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getSshKeys() {
         return $this->sshKeys;
@@ -281,8 +273,9 @@ class User extends Account implements UserInterface {
 
     public function __construct() {
         $this->requirePasswordChange = false;
-        $this->requireProfileUpdate = false;
-        $this->sshKeys = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->requireProfileUpdate  = false;
+        $this->sshKeys               = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->emails                = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getType() {
@@ -292,7 +285,7 @@ class User extends Account implements UserInterface {
     /**
      * Add organizations
      *
-     * @param Glit\CoreBundle\Entity\Organization $organizations
+     * @param \Glit\CoreBundle\Entity\Organization $organizations
      */
     public function addOrganization(\Glit\CoreBundle\Entity\Organization $organizations) {
         $this->organizations[] = $organizations;
@@ -301,9 +294,27 @@ class User extends Account implements UserInterface {
     /**
      * Get organizations
      *
-     * @return Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getOrganizations() {
         return $this->organizations;
+    }
+
+    /**
+     * Add emails
+     *
+     * @param \Glit\UserBundle\Entity\Email $emails
+     */
+    public function addEmail(\Glit\UserBundle\Entity\Email $emails) {
+        $this->emails[] = $emails;
+    }
+
+    /**
+     * Get emails
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEmails() {
+        return $this->emails;
     }
 }

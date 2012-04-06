@@ -63,10 +63,10 @@ class DefaultController extends Controller {
 
         // Find if user whose commit is in glit by email adresse
         /** @var $glitUser \Glit\UserBundle\Entity\User */
-        $glitUser = $this->getDoctrine()->getRepository('GlitUserBundle:User')->findOneByEmail($commit->getAuthor()->email);
-        if (!is_null($glitUser)) {
-            $commit_user['name'] = $glitUser->getUniqueName();
-            $commit_user['url']  = $this->generateUrl('glit_core_account_view', array('uniqueName' => $glitUser->getUniqueName()));
+        $glitUserEmail = $this->getDoctrine()->getRepository('GlitUserBundle:Email')->findOneByAddress($commit->getAuthor()->email);
+        if (!is_null($glitUserEmail)) {
+            $commit_user['name'] = $glitUserEmail->getUser()->getUniqueName();
+            $commit_user['url']  = $this->generateUrl('glit_core_account_view', array('uniqueName' => $glitUserEmail->getUser()->getUniqueName()));
         }
 
         $readme = null;

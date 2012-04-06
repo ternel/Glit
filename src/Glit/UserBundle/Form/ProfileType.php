@@ -10,7 +10,6 @@ class ProfileType extends AbstractType {
     public function buildForm(FormBuilder $builder, array $options) {
         $builder->add('firstname');
         $builder->add('lastname');
-        $builder->add('email', 'email');
     }
 
     public function getDefaultOptions(array $options) {
