@@ -366,3 +366,10 @@ p.last-commit {
 .announce .name .icon {
     margin-top: 3px;
 }
+
+/* List Items
+------------------ */
+table.list-items td.text {
+    padding-top: 13px;
+    padding-bottom: 3px;
+}

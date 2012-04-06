@@ -13,14 +13,14 @@
 </div>
 <div class="row-fluid">
     {% if keys|length > 0 %}
-    <table class="table table-striped borders">
+    <table class="table table-striped borders list-items">
         <tbody>
         {% for key in keys %}
         <tr>
-            <td>
+            <td class="text">
                 <a href="{{ path('glit_user_default_sshedit', {'keyId': key.id}) }}"><strong>{{ key.title }}</strong></a>
             </td>
-            <td><p class="small pull-right">{{ key.updatedAt|relativeDate }}</p></td>
+            <td class="text"><p class="small pull-right">{{ key.updatedAt|relativeDate }}</p></td>
             <td><a href="{{ path('glit_user_default_sshdelete', {'keyId': key.id}) }}"
                    class="btn btn-danger pull-right">{% trans %}Delete{% endtrans %}</a></td>
         </tr>
