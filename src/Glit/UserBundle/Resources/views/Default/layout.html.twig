@@ -15,6 +15,9 @@
                 <li {% block class_active_infos %}{% endblock %}>
                     <a href="{{ path('glit_user_default_edit') }}">{% trans %}My Data{% endtrans %}</a>
                 </li>
+                <li {% block class_active_emails %}{% endblock %}>
+                    <a href="{{ path('glit_user_emails_view') }}">{% trans %}My Emails{% endtrans %}</a>
+                </li>
                 <li {% block class_active_ssh %}{% endblock %}>
                     <a href="{{ path('glit_user_default_ssh') }}">{% trans %}My SSH Keys{% endtrans %}</a>
                 </li>
