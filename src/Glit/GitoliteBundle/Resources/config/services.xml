@@ -11,6 +11,7 @@
     <services>
         <service id="glit_gitolite.admin" class="%glit_gitolite.admin.gitolite.class%">
             <argument type="service" id="logger"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <!-- Twig Common Extension -->
