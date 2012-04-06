@@ -1,0 +1,37 @@
+{% extends 'GlitAdminBundle::layout.html.twig' %}
+
+{% block class_active_gitolite %}class="active"{% endblock %}
+
+{% block layout_content %}
+
+<header>
+    <h1>{% trans %}Gitolite Administration{% endtrans %}</h1>
+</header>
+
+<h2>{% trans %}SSH Keys{% endtrans %}</h2>
+{% if sshKeys|length > 0 %}
+<table class="table table-striped borders">
+    <tbody>
+    {% for key in sshKeys %}
+    <tr>
+        <td>
+            <strong>{{ key.key }}</strong>
+        </td>
+        <td><p class="small pull-right">{{ key.type | default('N/A') }}</p></td>
+        <td>
+            {% if key.removable %}
+            <a href="{{ path('glit_admin_gitolite_sshdelete', {'keyId': key.key}) }}"
+               class="btn btn-danger pull-right">{% trans %}Delete{% endtrans %}</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>{% trans %}You have any ssh key configured.{% endtrans %}</p>
+{% endif %}
+
+<h2>{% trans %}History{% endtrans %}</h2>
+{% include 'GlitGitoliteBundle::commits.html.twig' with {'commits': history} %}
+        {% endblock%}

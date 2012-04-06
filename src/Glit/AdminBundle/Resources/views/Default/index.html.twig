@@ -1,6 +1,11 @@
-{% extends '::base.html.twig' %}
+{% extends 'GlitAdminBundle::layout.html.twig' %}
 
-{% block content %}
+{% block class_active_dashboard %}class="active"{% endblock %}
 
+{% block layout_content %}
+
+<header>
+    <h1>{% trans %}Dashboard{% endtrans %}</h1>
+</header>
 
         {% endblock%}

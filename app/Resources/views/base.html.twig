@@ -20,7 +20,11 @@
 
     {% block stylesheets %}{% endblock %}
 
-
+    {% javascripts filter='?yui_js'
+        'js/jquery.js'
+    %}
+    <script type="text/javascript" src="{{ asset_url }}"></script>
+    {% endjavascripts %}
 </head>
 <body>
 {% include '::_navbar.html.twig' %}
@@ -52,7 +56,6 @@
 {% block debug %}{% endblock %}
 
 {% javascripts filter='?yui_js'
-        'js/jquery.js'
         'js/bootstrap.js'
         'js/glit.js'
     %}

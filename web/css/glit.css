@@ -138,3 +138,231 @@ ul.project-list li div.body p.description {
         filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
     }
 }
+
+/* Commits
+---------------------------*/
+
+h3.commit-group-heading {
+    margin: 15px 0 0 0;
+    padding: 5px 8px;
+    font-size: 13px;
+    color: #5C5C5C;
+    text-shadow: 0 1px white;
+    background: #F5F5F5;
+    background: -moz-linear-gradient(#FAFAFA, #EFEFEF);
+    background: -webkit-linear-gradient(#FAFAFA, #EFEFEF);
+    border: 1px solid #EAEAEA;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.commit-group {
+    list-style-type: none;
+    margin: 0 0 15px 0;
+    background: #f5f5f5;
+    border: 1px solid #EAEAEA;
+    border-top: none;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.commit-group-item {
+    position: relative;
+    padding: 8px 8px 8px 52px;
+    border-top: 1px solid #EAEAEA;
+}
+
+.commit-group-item:nth-child(2n+1) {
+    background: white;
+}
+
+.commit-group-item:first-child {
+    border-top: none;
+}
+
+.commit-group-item:last-child {
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.commit-group-item .avatar {
+    float: left;
+    margin-left: -44px;
+    border-radius: 4px;
+}
+
+.commit .commit-title, .commit .commit-title a {
+    color: #4E575B;
+}
+
+.commit-group-item .commit-title {
+    margin: 1px 0 1px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.commit-group-item .authorship {
+    font-size: 12px;
+    color: #888;
+}
+
+span.author_name {
+    color: #444;
+}
+
+.commit-group-item .authorship a {
+    color: #444;
+    text-decoration: none;
+}
+
+.commit-tease {
+    margin: 10px 0;
+    padding: 8px 8px 0;
+    background: #E6F1F6;
+    border: 1px solid #C5D5DD;
+    border-radius: 4px;
+}
+
+.commit-tease p.commit-title {
+    margin: 0 0 6px 0;
+}
+
+.commit .commit-title, .commit .commit-title a {
+    color: #4E575B;
+}
+
+.commit-tease .commit-meta {
+    margin-left: -8px;
+    width: 100%;
+    padding: 8px;
+    background: white;
+    border-top: 1px solid #D8E6EC;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.commit-tease .authorship {
+    font-size: 12px;
+    color: #999;
+    margin-left: -4px;
+    margin-bottom: -4px;
+    margin-top: -2px;
+}
+
+.commit-tease .sha-block {
+    float: right;
+    color: #888;
+}
+
+.commit .sha-block, .commit .sha {
+    font-size: 11px;
+    font-family: Monaco, "Courier New", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+}
+
+.commit-tease .mini-icon.clippy {
+    margin-right: 5px;
+    float: right;
+}
+
+p.last-commit {
+    margin: 10px 0 -5px 0;
+    padding-left: 0px;
+    font-size: 11px;
+    color: #888;
+}
+
+.commit-tease .authorship .avatar {
+    margin-top: -2px;
+    margin-right: 3px;
+    vertical-align: middle;
+    border-radius: 3px;
+}
+
+/* File list
+----------------- */
+
+#slider {
+    position: relative;
+    overflow: hidden;
+}
+
+.tree-browser {
+    width: 100%;
+    margin: 0;
+    border-radius: 3px;
+    border: 1px solid #CACACA;
+}
+
+.tree-browser th {
+    text-align: left;
+    font-weight: bold;
+    padding: 6px 3px;
+    color: #555;
+    text-shadow: 0 1px 0 white;
+    border-bottom: 1px solid #D8D8D8;
+    background: #FAFAFA;
+    background: -moz-linear-gradient(#FAFAFA, #EAEAEA);
+    background: -webkit-linear-gradient(#FAFAFA, #EAEAEA);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa',endColorstr='#eaeaea')";
+}
+
+.tree-browser th.icon {
+    width: 17px;
+    padding-right: 2px;
+    padding-left: 10px;
+}
+
+.tree-browser td {
+    background: #F8F8F8;
+    border-bottom: 1px solid #EEE;
+    padding: 7px 3px;
+    color: #484848;
+    vertical-align: middle;
+}
+
+.tree-browser tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.tree-browser-wrapper {
+    margin-bottom: 30px;
+    padding: 3px;
+    background: #EEE;
+    border-radius: 3px;
+}
+
+/* Readme
+----------- */
+
+#readme {
+    padding: 3px;
+    background: #EEE;
+    border-radius: 3px;
+}
+
+#readme span.name {
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: bold;
+    padding: 10px 10px;
+    color: #555;
+    text-shadow: 0 1px 0 white;
+    display: block;
+    border: 1px solid #CACACA;
+    border-bottom: 0 none;
+    background: #FAFAFA;
+    background: -moz-linear-gradient(#FAFAFA, #EAEAEA);
+    background: -webkit-linear-gradient(#FAFAFA, #EAEAEA);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa',endColorstr='#eaeaea')";
+}
+
+#readme .markdown-body, #readme .plain {
+    background-color: white;
+    border: 1px solid #CACACA;
+    padding: 30px;
+}
+
+.announce .name .icon {
+    margin-top: 3px;
+}

@@ -1,0 +1,29 @@
+{% extends '::base.html.twig' %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="span3">
+        <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+                <li class="nav-header">{% trans %}Administration{% endtrans %}</li>
+                <li {% block class_active_dashboard %}{% endblock %}>
+                    <a href="{{ path('glit_admin_default_index') }}">{% trans %}Dashboard{% endtrans %}</a>
+                </li>
+                <li {% block class_active_gitolite %}{% endblock %}>
+                    <a href="{{ path('glit_admin_gitolite_index') }}">{% trans %}Gitolite{% endtrans %}</a>
+                </li>
+                <li {% block class_active_users %}{% endblock %}>
+                    <a href="{{ path('_welcome') }}">{% trans %}Users{% endtrans %}</a>
+                </li>
+                <li {% block class_active_projects %}{% endblock %}>
+                    <a href="{{ path('_welcome') }}">{% trans %}Projects{% endtrans %}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="span9">
+        {% block layout_content %}{% endblock %}
+    </div>
+
+</div>
+        {% endblock %}
