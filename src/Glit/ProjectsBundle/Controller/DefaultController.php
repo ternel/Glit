@@ -5,6 +5,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Glit\GitoliteBundle\Git\Repository;
+use Glit\GitoliteBundle\Git\Commit;
 use Glit\CoreBundle\Utils\StringObject;
 
 class DefaultController extends Controller {
@@ -77,13 +78,19 @@ class DefaultController extends Controller {
                 $readme = $treeNode;
             }
 
+            /** @var $lastCommit Commit */
+            $lastCommit = $treeNode->getLastCommit($commit);
+
             $tree[] = array(
                 'name'                 => $treeNode->getName(),
                 'is_dir'               => $treeNode->getIsDir(),
-                'last_updated'         => new \DateTime(), //$lastCommit->getDate(),
-                'last_updated_summary' => 'test' //$lastCommit->getSummary()
+                'last_updated'         => $lastCommit->getDate(),
+                'last_updated_summary' => $lastCommit->getSummary()
             );
         }
+
+        $readme->getHistory($commit);
+        //var_dump($commit->diffWithPreviousCommit());
 
         return array('project'     => $project,
                      'commit_user' => $commit_user,
