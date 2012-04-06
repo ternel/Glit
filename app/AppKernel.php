@@ -6,6 +6,7 @@ use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 
 class AppKernel extends Kernel {
+
     public function registerBundles() {
         $bundles = array(
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
@@ -22,6 +23,7 @@ class AppKernel extends Kernel {
             new Glit\AdminBundle\GlitAdminBundle(),
             new Glit\CoreBundle\GlitCoreBundle(),
             new Glit\GitoliteBundle\GlitGitoliteBundle(),
+            new Knp\Bundle\MarkdownBundle\KnpMarkdownBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
