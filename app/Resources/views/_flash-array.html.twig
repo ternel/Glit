@@ -2,5 +2,5 @@
     {% if flash.closable %}
     <a class="close" data-dismiss="alert">×</a>
     {% endif %}
-    <strong>{{ flash.title }} :</strong> {{ flash.text }}
+    <strong>{{ flash.title | trans }} :</strong> {{ flash.text | trans }}
 </div>
