@@ -7,9 +7,14 @@
 
     <parameters>
         <parameter key="glit_user.validator.password.class">Glit\UserBundle\Validator\PasswordValidator</parameter>
+        <parameter key="glit_user.mailer.emails.class">Glit\UserBundle\Mailer\EmailsMailer</parameter>
     </parameters>
 
     <services>
+        <service id="glit_user.mailer.emails" class="%glit_user.mailer.emails.class%">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <!-- Password Validator Service -->
         <service id="glit_user.validator.password" class="%glit_user.validator.password.class%">
             <call method="setEncoderFactory">
