@@ -64,98 +64,6 @@ class DefaultController extends Controller {
     }
 
     /**
-     * @Route("/ssh/")
-     * @Template()
-     */
-    public function sshAction() {
-        /** @var $repo \Doctrine\ORM\EntityRepository */
-        $repo = $this->getDoctrine()->getRepository('GlitUserBundle:SshKey');
-        $keys = $repo->findByUser($this->getCurrentUser()->getId());
-
-        return array('keys' => $keys);
-    }
-
-    /**
-     * @Route("/ssh/new", defaults={"keyId" = null}, name="glit_user_default_sshnew")
-     * @Route("/ssh/{keyId}", name="glit_user_default_sshedit")
-     * @Template()
-     */
-    public function sshEditAction($keyId) {
-        $key = null;
-        if (null === $keyId) {
-            $key = new \Glit\UserBundle\Entity\SshKey($this->getCurrentUser());
-        }
-        else {
-            $key = $this->getDoctrine()->getRepository('GlitUserBundle:SshKey')->find($keyId);
-            if ($key->getUser()->getId() != $this->getCurrentUser()->getId()) {
-                // User can only edit owns ssh keys
-                $key = null;
-            }
-        }
-
-        if (null === $key) {
-            throw $this->createNotFoundException('The key does not exist');
-        }
-
-        $form = $this->createForm(new Type\SshKeyType(), $key);
-
-        if ('POST' == $this->getRequest()->getMethod()) {
-            $form->bindRequest($this->getRequest());
-            if ($form->isValid()) {
-                /** @var $em \Doctrine\ORM\EntityManager */
-                $em = $this->getDefaultEntityManager();
-                if (!$em->contains($key)) {
-                    $em->persist($key);
-                }
-
-                /** @var $gitoliteAdmin \Glit\GitoliteBundle\Admin\Gitolite */
-                $gitoliteAdmin = $this->getGitoliteAdmin();
-                $gitoliteAdmin->saveUserKey($key->getKeyIdentifier(), $key->getPublicKey());
-
-                $em->flush();
-
-                $this->setFlash('success', 'Your SSH public key was successfully saved.');
-                return $this->redirect($this->generateUrl('glit_user_default_ssh'));
-            }
-            else {
-                $this->setFlash('error', 'Unable to save your SSH public key. Please correct your inputs.');
-            }
-        }
-
-        return array('form' => $form->createView(),
-                     'key'  => $key);
-    }
-
-    /**
-     * @Route("/ssh/{keyId}/delete")
-     * @Template()
-     */
-    public function sshDeleteAction($keyId) {
-        $key = $this->getDoctrine()->getRepository('GlitUserBundle:SshKey')->find($keyId);
-        if ($key->getUser()->getId() != $this->getCurrentUser()->getId()) {
-            // User can only edit owns ssh keys
-            $key = null;
-        }
-
-        if (null !== $key) {
-            $this->getDefaultEntityManager()->remove($key);
-
-            /** @var $gitoliteAdmin \Glit\GitoliteBundle\Admin\Gitolite */
-            $gitoliteAdmin = $this->getGitoliteAdmin();
-            $gitoliteAdmin->deleteUserKey($key->getKeyIdentifier());
-
-            $this->getDefaultEntityManager()->flush();
-
-            $this->setFlash('success', 'Your SSH public key was deleted.');
-        }
-        else {
-            $this->setFlash('error', 'Unable to delete : unknow SSH key.');
-        }
-
-        return $this->redirect($this->generateUrl('glit_user_default_ssh'));
-    }
-
-    /**
      * @Route("/organizations/")
      * @Template()
      */
@@ -172,7 +80,7 @@ class DefaultController extends Controller {
     }
 
     /**
-     * @return Glit\UserBundle\Entity\User
+     * @return \Glit\UserBundle\Entity\User
      */
     protected function getCurrentUser() {
         return $this->get('security.context')->getToken()->getUser();
