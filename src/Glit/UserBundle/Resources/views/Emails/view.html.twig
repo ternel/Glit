@@ -12,17 +12,32 @@
     </h1>
 </div>
 <div class="row-fluid">
-    {% if emails|length > 0 %}
+    {% if items|length > 0 %}
     <table class="table table-striped borders list-items">
         <tbody>
-        {% for email in emails %}
+        {% for email in items %}
         <tr>
             <td class="text">
-                <a href="{{ path('glit_user_emails_edit', {'id': email.id}) }}"><strong>{{ email.address }}</strong></a>
+                <a href="{{ path('glit_user_emails_edit', {'id': email.id}) }}">
+                    <strong>{{ email.address }}</strong>
+                </a>
+                {% if email.isDefault %}
+                (Default)
+                {% endif %}
             </td>
+            <td class="label-container"><p class="small pull-right"><span
+                    class="label label-{{ email.isActive ? 'success' : 'important' }}">{{ email.isActive ? 'Active' : 'Inactive' | trans }}</span>
+            </p></td>
             <td class="text"><p class="small pull-right">{{ email.updatedAt|relativeDate }}</p></td>
-            <td><a href="{{ path('glit_user_emails_delete', {'id': email.id}) }}"
-                   class="btn btn-danger pull-right">{% trans %}Delete{% endtrans %}</a></td>
+            <td>
+                <span class="pull-right">
+                    {% if email.isActive and not email.isDefault %}
+                    <a href="{{ path('glit_user_emails_default', {'id': email.id}) }}"
+                       class="btn btn-inverse">{% trans %}Make Default{% endtrans %}</a>
+                    {% endif %}
+                    <a href="{{ path('glit_user_emails_delete', {'id': email.id}) }}" class="btn btn-danger">{% trans %}Delete{% endtrans %}</a>
+                </span>
+            </td>
         </tr>
         {% endfor %}
         </tbody>
