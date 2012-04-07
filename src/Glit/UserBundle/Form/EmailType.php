@@ -5,7 +5,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Validator\Constraints as Constraints;
 
-class ProfileType extends AbstractType {
+class EmailType extends AbstractType {
 
     public function buildForm(FormBuilder $builder, array $options) {
         $builder->add('address', 'email');
