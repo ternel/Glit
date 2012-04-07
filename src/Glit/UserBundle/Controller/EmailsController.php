@@ -62,6 +62,8 @@ class EmailsController extends Controller {
 
                 $em->flush();
 
+                $this->get('glit_user.mailer.emails')->sendActivation($item);
+
                 $this->setFlash('success', 'I\'ve saved your email. Thanks !');
                 return $this->redirect($this->generateUrl('glit_user_emails_view'));
             }
@@ -157,7 +159,11 @@ class EmailsController extends Controller {
         if (!is_null($item)) {
             if ($item->getIsActive()) {
                 if (!$item->getIsDefault()) {
+                    // unset old default address
+                    $item->getUser()->getEmail()->setIsDefault(false);
+                    // set new default address
                     $item->setIsDefault(true);
+
                     $this->getDefaultEntityManager()->flush();
 
                     $this->setFlash('success', 'Allright now I will use this email to contact you !');
