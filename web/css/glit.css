@@ -373,3 +373,8 @@ table.list-items td.text {
     padding-top: 13px;
     padding-bottom: 3px;
 }
+
+table.list-items td.label-container {
+    padding-top: 10px;
+    padding-bottom: 6px;
+}
