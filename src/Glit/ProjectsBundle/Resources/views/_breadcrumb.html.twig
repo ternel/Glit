@@ -1,0 +1,19 @@
+<ul class="breadcrumb">
+    {% for node in path %}
+    <li{% if loop.last %} class="active"{% endif %}>
+        {% if node.link is defined %}
+        <a href="node.link">
+            {% endif %}
+
+            {{ node.text }}
+
+            {% if not loop.last %}
+            <span class="divider">/</span>
+            {% endif %}
+
+            {% if node.link is defined %}
+        </a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
