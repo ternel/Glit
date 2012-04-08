@@ -2,7 +2,14 @@
 <h3 class="commit-group-heading">{{ group.date|localeDate }}</h3>
 <ol class="commit-group">
     {% for commit in group.commits %}
-    {% include 'GlitGitoliteBundle:Commits:commit-item.html.twig' with {'commit': commit} %}
+    {% if users[commit.author.email] is not defined %}
+    {% set user = {'name': commit.author.name} %}
+    {% else %}
+    {% set user = users[commit.author.email] %}
+    {% endif %}
+
+    {% include 'GlitGitoliteBundle:Commits:commit-item.html.twig' with {'commit': commit, 'user': user} %}
+
     {% endfor %}
 </ol>
         {% endfor %}

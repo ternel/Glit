@@ -1,1 +1,4 @@
-{% include 'GlitGitoliteBundle:Commits:commit-groups.html.twig' with {'groups': commits|groupByDate} %}
+{% if users is not defined %}
+{% set users = [] %}
+{% endif %}
+        {% include 'GlitGitoliteBundle:Commits:commit-groups.html.twig' with {'groups': commits|groupByDate, 'users': users} %}
