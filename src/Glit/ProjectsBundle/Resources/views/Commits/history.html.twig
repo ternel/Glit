@@ -1,0 +1,14 @@
+{% extends 'GlitProjectsBundle::layout-code.html.twig' %}
+
+{% block tab_commits %} class="active"{% endblock %}
+
+{% block layout_content %}
+
+{% include 'GlitProjectsBundle::_breadcrumb.html.twig' with {'path': [
+{'text': project.name, 'link': path('glit_projects_default_view', {'accountName': project.owner.uniqueName, 'projectPath': project.name})},
+{'text': 'Commit History' | trans},
+]} %}
+
+{% include 'GlitGitoliteBundle::commits.html.twig' with {'commits': history, 'users': historyUsers} %}
+
+        {% endblock %}
