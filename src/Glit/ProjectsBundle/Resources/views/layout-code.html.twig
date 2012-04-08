@@ -1,0 +1,33 @@
+{% extends '::base.html.twig' %}
+
+{% block content %}
+<header>
+    <h1>{{ project.name }}</h1>
+
+    <p class="lead">{{ project.description }}</p>
+
+    <div class="subnav">
+        <ul class="nav nav-pills">
+            <li><a href="#global">{% trans %}Code{% endtrans %}</a></li>
+            <li><a href="#gridSystem">{% trans %}Issues{% endtrans %}</a></li>
+            <li><a href="#fluidGridSystem">{% trans %}Wiki{% endtrans %}</a></li>
+            <li><a href="#gridCustomization">{% trans %}Documents{% endtrans %}</a></li>
+            <li><a href="#layouts">{% trans %}Pull Request{% endtrans %}</a></li>
+            <li><a href="#layouts">{% trans %}Team{% endtrans %}</a></li>
+        </ul>
+    </div>
+</header>
+
+<ul class="nav nav-tabs">
+    <li{% block tab_file %}{% endblock %}>
+        <a href="{{ path('glit_projects_default_view', {'accountName': project.owner.uniqueName, 'projectPath': project.path}) }}">{% trans %}Files{% endtrans %}</a>
+    </li>
+    <li{% block tab_commits %}{% endblock %}><a
+            href="{{ path('glit_projects_commits_history', {'accountName': project.owner.uniqueName, 'projectPath': project.path, 'branchName' : branch}) }}">{% trans%}Commits{% endtrans %}</a>
+    </li>
+
+</ul>
+
+{% block layout_content %}{% endblock %}
+
+        {% endblock %}

@@ -1,23 +1,8 @@
-{% extends '::base.html.twig' %}
+{% extends 'GlitProjectsBundle::layout-code.html.twig' %}
 
-{% block content %}
+{% block tab_file %} class="active"{% endblock %}
 
-<header>
-    <h1>{{ project.name }}</h1>
-
-    <p class="lead">{{ project.description }}</p>
-
-    <div class="subnav">
-        <ul class="nav nav-pills">
-            <li><a href="#global">{% trans %}Code{% endtrans %}</a></li>
-            <li><a href="#gridSystem">{% trans %}Issues{% endtrans %}</a></li>
-            <li><a href="#fluidGridSystem">{% trans %}Wiki{% endtrans %}</a></li>
-            <li><a href="#gridCustomization">{% trans %}Documents{% endtrans %}</a></li>
-            <li><a href="#layouts">{% trans %}Pull Request{% endtrans %}</a></li>
-            <li><a href="#layouts">{% trans %}Team{% endtrans %}</a></li>
-        </ul>
-    </div>
-</header>
+{% block layout_content %}
 
 <p class="last-commit small">
     <i class="icon-time"></i>
@@ -53,9 +38,9 @@
 
 <div id="slider">
 
-    <ul class="breadcrumb">
-        <li class="active">{{ project.name }}<span class="divider">/</span></li>
-    </ul>
+    {% include 'GlitProjectsBundle::_breadcrumb.html.twig' with {'path': [
+{'text': project.name, 'link': path('glit_projects_default_view', {'accountName': project.owner.uniqueName, 'projectPath': project.name})}
+]} %}
 
     <div class="tree-browser-wrapper">
         <table class="tree-browser table table-striped" cellpadding="0" cellspacing="0">
