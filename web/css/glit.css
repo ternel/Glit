@@ -1,6 +1,6 @@
 body {
     background: #EEE;
-
+    padding-bottom: 80px;
     padding-top: 40px;
 }
 
@@ -89,6 +89,7 @@ ul.project-list li div.body p.description {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
+    margin-bottom: 15px;
 }
 
 .subnav .nav {
