@@ -5,6 +5,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Glit\UserBundle\Entity as Entity;
+use Symfony\Component\Console\Input\InputOption;
 
 class InitCommand extends ContainerAwareCommand {
 
@@ -12,7 +13,13 @@ class InitCommand extends ContainerAwareCommand {
      * Configures the current command.
      */
     protected function configure() {
-        $this->setName('glit:users:initialize');
+        $this
+            ->setName('glit:users:initialize')
+            ->addOption('username', '', InputOption::VALUE_REQUIRED, 'Username')
+            ->addOption('password', '', InputOption::VALUE_REQUIRED, 'Password')
+            ->addOption('firstname', '', InputOption::VALUE_REQUIRED, 'Firstname')
+            ->addOption('lastname', '', InputOption::VALUE_REQUIRED, 'Lastname')
+            ->addOption('email', '', InputOption::VALUE_REQUIRED, 'Email');
     }
 
     /**
@@ -29,9 +36,6 @@ class InitCommand extends ContainerAwareCommand {
      * @return integer 0 if everything went fine, or an error code
      */
     protected function execute(InputInterface $input, OutputInterface $output) {
-        /** @var $dialog \Symfony\Component\Console\Helper\DialogHelper */
-        $dialog = $this->getHelperSet()->get('dialog');
-
         /** @var $doctrine \Symfony\Bundle\DoctrineBundle\Registry */
         $doctrine = $this->getContainer()->get('doctrine');
         /** @var $em \Doctrine\Common\Persistence\ObjectManager */
@@ -39,14 +43,14 @@ class InitCommand extends ContainerAwareCommand {
 
         $user = new Entity\User();
 
-        $user->setUsername($dialog->ask($output, 'Choose an <info>username</info> : ', null));
+        $user->setUsername($input->getOption('username'));
 
         $encoder = $this->getEncoderFactory()->getEncoder($user);
-        $user->setPassword($encoder->encodePassword($dialog->ask($output, 'Choose a <info>password</info> : ', null), $user->getSalt()));
+        $user->setPassword($encoder->encodePassword($input->getOption('password'), $user->getSalt()));
 
-        $user->setEmail($dialog->ask($output, 'Type your <info>email</info> : ', null));
-        $user->setFirstname($dialog->ask($output, 'Type your <info>firstname</info> : ', null));
-        $user->setLastname($dialog->ask($output, 'Type your <info>lastname</info> : ', null));
+        $user->setEmail($input->getOption('email'));
+        $user->setFirstname($input->getOption('firstname'));
+        $user->setLastname($input->getOption('lastname'));
 
         $em->persist($user);
         $em->flush();
