@@ -1,0 +1,17 @@
+{% extends 'GlitProjectsBundle::layout-code.html.twig' %}
+
+{% block tab_file %} class="active"{% endblock %}
+
+{% block layout_content %}
+<div id="slider">
+
+    {% include 'GlitProjectsBundle::_breadcrumb.html.twig' with {'path': [
+            {
+            'text': project.name,
+            'link': path('glit_projects_default_view', {'accountName': project.owner.uniqueName, 'projectPath': project.path})
+            }
+        ]|merge(path)} %}
+
+    {% include 'GlitProjectsBundle::_tree.html.twig' with {'tree': tree.nodes, 'accountName': project.owner.uniqueName, 'projectPath': project.path, 'branchName': branch} %}
+</div>
+        {% endblock %}

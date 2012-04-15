@@ -1,11 +1,10 @@
 <?php
 namespace Glit\ProjectsBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-class CommitsController extends Controller {
+class CommitsController extends BaseController {
 
     /**
      * @Route("{accountName}/{projectPath}/commit/{commitName}")
@@ -20,28 +19,7 @@ class CommitsController extends Controller {
      * @Template()
      */
     public function historyAction($accountName, $projectPath, $branchName) {
-        /** @var $account \Glit\CoreBundle\Entity\Account */
-        $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($accountName);
-
-        if (null == $account) {
-            throw $this->createNotFoundException(sprintf('Account %s not found', $accountName));
-        }
-
-        /** @var $project \Glit\ProjectsBundle\Entity\Project */
-        $project = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findOneBy(array('path' => $projectPath,
-                                                                                                     'owner' => $account->getId()));
-
-        if (null == $project) {
-            throw $this->createNotFoundException(sprintf('Project %s not found', $projectPath));
-        }
-
-        // Load data from repository
-        $repository = $this->getGitoliteAdmin()->getRepository($project->getFullPath() . '.git');
-
-        if ($repository->isNew()) {
-            return $this->redirect($this->generateUrl('glit_projects_default_view', array('accountName' => $accountName,
-                                                                                         'projectPath'  => $projectPath)));
-        }
+        list($project, $repository) = $this->validateProject($accountName, $projectPath);
 
         $history = array_reverse($repository->getBranch($branchName)->getHistory());
 

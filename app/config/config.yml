@@ -20,6 +20,7 @@ framework:
 twig:
     debug:            %kernel.debug%
     strict_variables: %kernel.debug%
+    exception_controller: "Glit\CoreBundle\Controller\ExceptionController::showAction"
 
 # Assetic Configuration
 assetic:

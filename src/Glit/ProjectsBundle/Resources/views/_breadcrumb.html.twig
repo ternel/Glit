@@ -1,19 +1,12 @@
 <ul class="breadcrumb">
+    {% spaceless %}
     {% for node in path %}
     <li{% if loop.last %} class="active"{% endif %}>
-        {% if node.link is defined %}
-        <a href="node.link">
-            {% endif %}
-
-            {{ node.text }}
-
-            {% if not loop.last %}
-            <span class="divider">/</span>
-            {% endif %}
-
-            {% if node.link is defined %}
-        </a>
-        {% endif %}
+        {% if node.link is defined and not loop.last %}<a href="{{ node.link }}">{% endif %}
+        {{- node.text -}}
+        {% if node.link is defined and not loop.last %}</a>{% endif %}
+        {% if not loop.last %}<span class="divider">/</span>{% endif %}
     </li>
     {% endfor %}
+    {% endspaceless %}
 </ul>

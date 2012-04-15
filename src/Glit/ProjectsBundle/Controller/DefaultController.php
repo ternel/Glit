@@ -8,7 +8,7 @@ use Glit\GitoliteBundle\Git\Repository;
 use Glit\GitoliteBundle\Git\Commit;
 use Glit\CoreBundle\Utils\StringObject;
 
-class DefaultController extends Controller {
+class DefaultController extends BaseController {
 
     /**
      * @Route("/projects/")
@@ -23,81 +23,22 @@ class DefaultController extends Controller {
      * @Template()
      */
     public function viewAction($accountName, $projectPath) {
-        /** @var $account \Glit\CoreBundle\Entity\Account */
-        $account = $this->getDoctrine()->getRepository('GlitCoreBundle:Account')->findOneByUniqueName($accountName);
-
-        if (null == $account) {
-            throw $this->createNotFoundException(sprintf('Account %s not found', $accountName));
-        }
-
-        /** @var $project \Glit\ProjectsBundle\Entity\Project */
-        $project = $this->getDoctrine()->getRepository('GlitProjectsBundle:Project')->findOneBy(array('path' => $projectPath,
-                                                                                                     'owner' => $account->getId()));
-
-        if (null == $project) {
-            throw $this->createNotFoundException(sprintf('Project %s not found', $projectPath));
-        }
-
-        // Load data from repository
-        $repository = $this->getGitoliteAdmin()->getRepository($project->getFullPath() . '.git');
-
-        if ($repository->isNew()) {
-            // TODO : check right for organization
-            // Redirect to notFound has no write role on this project
-            if ($account->getUniqueName() == $this->getCurrentUser()->getUniqueName()) {
-                return $this->render('GlitProjectsBundle:Default:view-empty.html.twig', array('project' => $project,
-                                                                                             'ssh'      => 'git@dev.glit.fr:' . $project->getFullPath() . '.git'));
-            }
-            else {
-                throw $this->createNotFoundException(sprintf('Project %s not found', $projectPath));
-            }
-        }
+        list($project, $repository) = $this->validateProject($accountName, $projectPath);
 
         $branch = $project->getDefaultBranch();
 
         /** @var $commit \Glit\GitoliteBundle\Git\Commit */
         $commit      = $repository->getBranch($branch)->getTip();
-        $commit_user = array(
-            'name' => $commit->getAuthor()->name
-        );
+        $commit_user = $this->findGitUser($commit->getAuthor());
 
-        // Find if user whose commit is in glit by email adresse
-        /** @var $glitUser \Glit\UserBundle\Entity\User */
-        $glitUserEmail = $this->getDoctrine()->getRepository('GlitUserBundle:Email')->findOneByAddress($commit->getAuthor()->email);
-        if (!is_null($glitUserEmail) && $glitUserEmail->getIsActive()) {
-            $commit_user['name'] = $glitUserEmail->getUser()->getUniqueName();
-            $commit_user['url']  = $this->generateUrl('glit_core_account_view', array('uniqueName' => $glitUserEmail->getUser()->getUniqueName()));
-        }
-
-        $readme = null;
-
-        $tree = array();
-        foreach ($commit->getTree()->getNodes() as $treeNode) {
-            /** @var $treeNode \Glit\GitoliteBundle\Git\TreeNode */
-            if (StringObject::staticStartsWith($treeNode->getName(), 'README.', false) || strtoupper($treeNode->getName()) == 'README') {
-                $readme = $treeNode;
-            }
-
-            /** @var $lastCommit Commit */
-            $lastCommit = $treeNode->getLastCommit($commit);
-
-            $tree[] = array(
-                'name'                 => $treeNode->getName(),
-                'is_dir'               => $treeNode->getIsDir(),
-                'last_updated'         => $lastCommit->getDate(),
-                'last_updated_summary' => $lastCommit->getSummary()
-            );
-        }
-
-        $readme->getHistory($commit);
-        //var_dump($commit->diffWithPreviousCommit());
+        $treeData = $commit->getTree()->getAllData($commit);
 
         return array('project'     => $project,
                      'commit_user' => $commit_user,
                      'branch'      => $branch,
                      'commit'      => $commit,
-                     'tree'        => $tree,
-                     'readme'      => $readme);
+                     'tree'        => $treeData['nodes'],
+                     'readme'      => $treeData['readme']);
     }
 
     /**
@@ -155,36 +96,10 @@ class DefaultController extends Controller {
     }
 
     /**
-     * @return \Glit\UserBundle\Entity\User
+     * Display initialization page
      */
-    protected
-    function getCurrentUser() {
-        return $this->get('security.context')->getToken()->getUser();
-    }
-
-    /**
-     * Set session flash
-     * @param $action
-     * @param $value
-     */
-    protected
-    function setFlash($action, $value) {
-        $this->container->get('session')->setFlash($action, $value);
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    protected
-    function getDefaultEntityManager() {
-        return $this->getDoctrine()->getEntityManager();
-    }
-
-    /**
-     * @return \Glit\GitoliteBundle\Admin\Gitolite
-     */
-    protected
-    function getGitoliteAdmin() {
-        return $this->get('glit_gitolite.admin');
+    public function emptyAction($project) {
+        return $this->render('GlitProjectsBundle:Default:view-empty.html.twig', array('project' => $project,
+                                                                                     'ssh'      => 'git@dev.glit.fr:' . $project->getFullPath() . '.git'));
     }
 }

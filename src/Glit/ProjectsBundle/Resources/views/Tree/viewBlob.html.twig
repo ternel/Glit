@@ -1,0 +1,33 @@
+{% extends 'GlitProjectsBundle::layout-code.html.twig' %}
+
+{% block tab_file %} class="active"{% endblock %}
+
+{% block layout_content %}
+<div id="slider">
+
+    {% include 'GlitProjectsBundle::_breadcrumb.html.twig' with {'path': [
+            {
+            'text': project.name,
+            'link': path('glit_projects_default_view', {'accountName': project.owner.uniqueName, 'projectPath': project.path})
+            }
+        ]|merge(path)} %}
+
+
+    <article class="blob-container">
+        <header>
+            <span class="blob-size">{{ size/1000 }} {% trans %}kB{% endtrans %}</span>
+
+            <div class="btn-toolbar pull-right">
+                <div class="btn-group">
+                    <a href="" class="btn">{% trans %}Raw{% endtrans %}</a>
+                    <a href="" class="btn">{% trans %}History{% endtrans %}</a>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </header>
+
+        <pre>{{ data }}</pre>
+    </article>
+
+</div>
+        {% endblock %}

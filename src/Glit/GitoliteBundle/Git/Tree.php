@@ -2,6 +2,8 @@
 namespace Glit\GitoliteBundle\Git;
 
 use Glit\GitoliteBundle\Utils\SHA;
+use Glit\CoreBundle\Utils\StringObject;
+use Glit\CoreBundle\Utils\SystemPathObject;
 
 class TreeError extends \Exception {
 
@@ -12,6 +14,13 @@ class TreeInvalidPathError extends TreeError {
 }
 
 class Tree extends GitObject {
+
+    const TREEDIFF_A = 0x01;
+    const TREEDIFF_B = 0x02;
+
+    const TREEDIFF_REMOVED = self::TREEDIFF_A;
+    const TREEDIFF_ADDED   = self::TREEDIFF_B;
+    const TREEDIFF_CHANGED = 0x03;
 
     protected $nodes = array();
     protected $path;
@@ -219,14 +228,99 @@ class Tree extends GitObject {
         }
     }
 
-    const TREEDIFF_A = 0x01;
-    const TREEDIFF_B = 0x02;
+    /**
+     * returns the relative path of an object in this Tree
+     *
+     * @param $obj TreeNode The object to find the path for
+     * @return string or null if not found
+     **/
+    public function getPath(TreeNode $obj = null) {
+        if (is_null($obj)) {
+            return $this->path;
+        }
 
-    const TREEDIFF_REMOVED = self::TREEDIFF_A;
-    const TREEDIFF_ADDED   = self::TREEDIFF_B;
-    const TREEDIFF_CHANGED = 0x03;
+        $nodes = $this->listRecursive();
+        $path  = array_search($obj, $nodes, true);
+        return false === $path ? null : $path;
+    }
 
-    static public function treeDiff(Tree $a_tree, $b_tree) {
+    public function setPath($path) {
+        $this->path = $path;
+        foreach ($this->nodes as $node) {
+            $node->setPath((string)$path);
+        }
+    }
+
+    public function getAllData($commit) {
+        $cacheEnabled = $this->repo->isCacheEnabled();
+
+        $data = null;
+
+        if ($cacheEnabled) {
+            $cachePath = $this->repo->getTreeCachePath($this->getName());
+
+            $dataPath = $cachePath->buildSubPath('nodes.data');
+            if (file_exists($dataPath)) {
+                $content = file_get_contents($dataPath);
+                $data    = unserialize($content);
+
+                if (is_object($data['readme'])) {
+                    $data['readme']->setRepo($this->repo);
+                }
+            }
+        }
+
+        if (is_null($data)) {
+            $data = $this->_getAllData($commit);
+
+            if ($cacheEnabled) {
+                file_put_contents($dataPath, serialize($data));
+            }
+        }
+
+        return $data;
+    }
+
+    protected function _getAllData($commit) {
+
+        $data     = array(
+            'nodes'  => array(),
+            'readme' => null
+        );
+        $subTrees = array();
+        $blobs    = array();
+
+        foreach ($this->nodes as $node) {
+            /** @var $treeNode \Glit\GitoliteBundle\Git\TreeNode */
+            if (StringObject::staticStartsWith($node->getName(), 'README.', false) || strtoupper($node->getName()) == 'README') {
+                $data['readme'] = $node;
+            }
+
+            /** @var $lastCommit Commit */
+            $lastCommit = $node->getLastCommit($commit);
+
+            $nodeData = array(
+                'name'                 => $node->getName(),
+                'path'                 => substr($node->getPath(), 1),
+                'is_dir'               => is_bool($node->getIsDir()) ? $node->getIsDir() : false,
+                'last_updated'         => $lastCommit->getDate(),
+                'last_updated_summary' => $lastCommit->getSummary()
+            );
+
+            if ($nodeData['is_dir']) {
+                $subTrees[] = $nodeData;
+            }
+            else {
+                $blobs[] = $nodeData;
+            }
+        }
+
+        $data['nodes'] = array_merge($subTrees, $blobs);
+
+        return $data;
+    }
+
+    public static function treeDiff(Tree $a_tree, $b_tree) {
         $a_blobs = $a_tree ? $a_tree->listRecursive() : array();
         $b_blobs = $b_tree ? $b_tree->listRecursive() : array();
 
@@ -267,21 +361,5 @@ class Tree extends GitObject {
         }
 
         return $changes;
-    }
-
-    /**
-     * returns the relative path of an object in this Tree
-     *
-     * @param $obj TreeNode The object to find the path for
-     * @return string or null if not found
-     **/
-    public function getPath(TreeNode $obj) {
-        $nodes = $this->listRecursive();
-        $path  = array_search($obj, $nodes, true);
-        return false === $path ? null : $path;
-    }
-
-    public function setPath($path) {
-        $this->path = $path;
     }
 }

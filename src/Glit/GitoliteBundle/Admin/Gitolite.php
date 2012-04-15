@@ -128,7 +128,12 @@ class Gitolite {
      * @param $path
      */
     public function getRepository($path) {
-        return new Repository($this->gitoliteRepoDir->buildSubPath($path), $this->logger);
+        $cachePath = new SystemPathObject($this->container->getParameter('kernel.cache_dir'));
+        $cachePath->join(array(
+                              'gitolite',
+                              str_replace(DS, '_', $path)
+                         ));
+        return new Repository($this->gitoliteRepoDir->buildSubPath($path), $this->logger, null, $cachePath);
     }
 
     /**

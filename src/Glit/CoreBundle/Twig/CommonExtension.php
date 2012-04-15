@@ -17,6 +17,8 @@ class CommonExtension extends \Twig_Extension {
             'relativeDate'  => new \Twig_Filter_Method($this, 'relativeDate'),
             'localeDate'    => new \Twig_Filter_Method($this, 'localeDate'),
 
+            'substr'        => new \Twig_Filter_Method($this, 'substr'),
+
             'debug'         => new \Twig_Filter_Method($this, 'debug'),
             'type'          => new \Twig_Filter_Method($this, 'type'),
         );
@@ -97,5 +99,13 @@ class CommonExtension extends \Twig_Extension {
         else {
             return gettype($data);
         }
+    }
+
+    public function substr($text, $start = 0, $length = null) {
+        var_dump($text);
+        var_dump($start);
+        var_dump($length);
+        die('tutu');
+        return substr($text, $start, $length);
     }
 }

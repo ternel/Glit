@@ -1,0 +1,24 @@
+<div class="tree-browser-wrapper">
+    <table class="tree-browser table table-striped" cellpadding="0" cellspacing="0">
+        <thead>
+        <tr>
+            <th class="icon"></th>
+            <th class="name">{% trans %}name{% endtrans %}</th>
+            <th class="date">{% trans %}age{% endtrans %}</th>
+            <th class="message">{% trans %}message{% endtrans %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in tree %}
+        <tr>
+            <td class="icon"><i class="icon-{{object.is_dir ? 'folder-close' : 'file' }}"></i></td>
+            <td>
+                <a href="{{ path('glit_projects_tree_view', {'accountName': accountName, 'projectPath': projectPath, 'branchName': branchName, 'path': object.path }) }}">{{ object.name }}</a>
+            </td>
+            <td>{{ object.last_updated|relativeDate }}</td>
+            <td>{{ object.last_updated_summary }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

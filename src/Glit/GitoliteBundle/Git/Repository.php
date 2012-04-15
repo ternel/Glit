@@ -21,19 +21,23 @@ class Repository {
     /** @var null|\Symfony\Component\HttpKernel\Log\LoggerInterface */
     private $logger;
 
+    /** @var \Glit\CoreBundle\Utils\SystemPathObject */
+    private $cachePath;
+
     // Internals
     private $cache = array();
     private $packs = array();
     private $branchCache = array();
 
-    public static function cloneRepository($remote, $localPath, LoggerInterface $logger = null) {
+    public static function cloneRepository($remote, $localPath, LoggerInterface $logger = null, $cachePath = null) {
         self::staticExecProcessAsGlit($localPath, sprintf('git clone %s %s', $remote, $localPath, $logger));
-        return new self($localPath, $logger);
+        return new self($localPath, $logger, null, $cachePath);
     }
 
-    public function __construct($path, LoggerInterface $logger = null, $internalPath = null) {
-        $this->logger = $logger;
-        $this->fs     = new Filesystem();
+    public function __construct($path, LoggerInterface $logger = null, $internalPath = null, $cachePath = null) {
+        $this->logger    = $logger;
+        $this->fs        = new Filesystem();
+        $this->cachePath = $cachePath;
 
         $path = new \Glit\CoreBundle\Utils\SystemPathObject($path);
 
@@ -60,10 +64,42 @@ class Repository {
         $this->initialize();
     }
 
+    protected function initializeCache() {
+        if (is_null($this->cachePath)) {
+            return;
+        } // Cache not available
+
+        if (!($this->cachePath instanceof \Glit\CoreBundle\Utils\SystemPathObject)) {
+            $this->cachePath = new \Glit\CoreBundle\Utils\SystemPathObject($this->cachePath);
+        }
+
+        if (!file_exists($this->cachePath)) {
+            mkdir($this->cachePath, 0777, true);
+        }
+    }
+
+    public function isCacheEnabled() {
+        return !is_null($this->cachePath);
+    }
+
+    public function getTreeCachePath($treeName) {
+        $treeName = SHA::sha1_hex($treeName);
+
+        $treeCachePath = $this->cachePath->buildSubPath(array('tree', $treeName));
+
+        if (!file_exists($treeCachePath)) {
+            mkdir($treeCachePath, 0777, true);
+        }
+
+        return $treeCachePath;
+    }
+
     /**
      * Initialize repository
      */
     private function initialize() {
+        $this->initializeCache();
+
         $this->packs = array();
         $dh          = opendir(sprintf('%s/objects/pack', $this->internalPath));
         if ($dh !== FALSE) {

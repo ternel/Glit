@@ -23,8 +23,10 @@ class TreeNode {
     protected $history;
 
     public function __construct(Repository $repo, $path) {
-        $this->repo = $repo;
-        $this->path = $path;
+        $this->repo        = $repo;
+        $this->path        = $path;
+        $this->isDir       = false;
+        $this->isSubModule = false;
     }
 
     public function setIsDir($isDir) {
@@ -63,12 +65,20 @@ class TreeNode {
         $this->objectHead = $objectHead;
     }
 
+    public function setRepo($repo) {
+        $this->repo = $repo;
+    }
+
     public function getObjectHead() {
         return $this->objectHead;
     }
 
     public function getObject() {
         return $this->repo->getObject($this->objectHead, $this->path);
+    }
+
+    public function setPath($path) {
+        $this->path = $path;
     }
 
     public function getPath() {
@@ -113,10 +123,22 @@ class TreeNode {
      */
     public function getLastCommit(Commit $start) {
         $history = $this->getHistory($start);
+
         return $history[0];
     }
 
     public function getDiff() {
 
+    }
+
+    public function __sleep() {
+        return array(
+            'mode',
+            'name',
+            'isDir',
+            'isSubModule',
+            'objectHead',
+            'path'
+        );
     }
 }
