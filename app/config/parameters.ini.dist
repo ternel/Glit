@@ -1,0 +1,16 @@
+[parameters]
+    database_driver   = pdo_mysql
+    database_host     = localhost
+    database_port     =
+    database_name     = glit
+    database_user     =
+    database_password =
+
+    mailer_transport  = smtp
+    mailer_host       = localhost
+    mailer_user       =
+    mailer_password   =
+
+    locale            = fr_FR
+
+    secret            = ThisTokenIsNotSoSecretChangeIt

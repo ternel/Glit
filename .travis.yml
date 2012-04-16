@@ -1,6 +1,18 @@
 language: php
 php:
-  - 5.3
-  - 5.4
+    - 5.3
+    - 5.4
 
-before_script: php bin/vendors install
+#before_install: sudo apt-get install libicu-dev -y
+before_script:
+    - cp app/config/parameters.yml.dist app/config/parameters.yml
+    - mkdir -p app/cache app/logs
+    - php bin/vendors install
+    - php app/console glit:install --env=test --admin_username=travis --admin_password=travis --admin_firstname=Travis --admin_lastname=CI --admin_email=travis@travis-ci.org
+
+script: "phpunit -c app/"
+
+notifications:
+  email:
+    on_failure: always
+    on_success: change

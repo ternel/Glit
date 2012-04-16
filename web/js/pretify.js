@@ -375,3 +375,85 @@ window.PR_SHOULD_USE_CONTINUATION = !0;
     window.PR = {createSimpleLexer:x, registerLangHandler:k, sourceDecorator:u, PR_ATTRIB_NAME:"atn", PR_ATTRIB_VALUE:"atv", PR_COMMENT:"com", PR_DECLARATION:"dec", PR_KEYWORD:"kwd", PR_LITERAL:"lit",
         PR_NOCODE:"nocode", PR_PLAIN:"pln", PR_PUNCTUATION:"pun", PR_SOURCE:"src", PR_STRING:"str", PR_TAG:"tag", PR_TYPE:"typ"}
 })();
+
+// CSS
+PR.registerLangHandler(PR.createSimpleLexer([
+    ["pln", /^[\t\n\f\r ]+/, null, " \t\r\n"]
+], [
+    ["str", /^"(?:[^\n\f\r"\\]|\\(?:\r\n?|\n|\f)|\\[\S\s])*"/, null],
+    ["str", /^'(?:[^\n\f\r'\\]|\\(?:\r\n?|\n|\f)|\\[\S\s])*'/, null],
+    ["lang-css-str", /^url\(([^"')]*)\)/i],
+    ["kwd", /^(?:url|rgb|!important|@import|@page|@media|@charset|inherit)(?=[^\w-]|$)/i, null],
+    ["lang-css-kw", /^(-?(?:[_a-z]|\\[\da-f]+ ?)(?:[\w-]|\\\\[\da-f]+ ?)*)\s*:/i],
+    ["com", /^\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//],
+    ["com",
+        /^(?:<\!--|--\>)/],
+    ["lit", /^(?:\d+|\d*\.\d+)(?:%|[a-z]+)?/i],
+    ["lit", /^#[\da-f]{3,6}/i],
+    ["pln", /^-?(?:[_a-z]|\\[\da-f]+ ?)(?:[\w-]|\\\\[\da-f]+ ?)*/i],
+    ["pun", /^[^\s\w"']+/]
+]), ["css"]);
+PR.registerLangHandler(PR.createSimpleLexer([], [
+    ["kwd", /^-?(?:[_a-z]|\\[\da-f]+ ?)(?:[\w-]|\\\\[\da-f]+ ?)*/i]
+]), ["css-kw"]);
+PR.registerLangHandler(PR.createSimpleLexer([], [
+    ["str", /^[^"')]+/]
+]), ["css-str"]);
+// Yaml
+var a = null;
+PR.registerLangHandler(PR.createSimpleLexer([
+    ["pun", /^[:>?|]+/, a, ":|>?"],
+    ["dec", /^%(?:YAML|TAG)[^\n\r#]+/, a, "%"],
+    ["typ", /^&\S+/, a, "&"],
+    ["typ", /^!\S*/, a, "!"],
+    ["str", /^"(?:[^"\\]|\\.)*(?:"|$)/, a, '"'],
+    ["str", /^'(?:[^']|'')*(?:'|$)/, a, "'"],
+    ["com", /^#[^\n\r]*/, a, "#"],
+    ["pln", /^\s+/, a, " \t\r\n"]
+], [
+    ["dec", /^(?:---|\.\.\.)(?:[\n\r]|$)/],
+    ["pun", /^-/],
+    ["kwd", /^\w+:[\n\r ]/],
+    ["pln", /^\w+/]
+]), ["yaml", "yml"]);
+// Wiki
+PR.registerLangHandler(PR.createSimpleLexer([
+    ["pln", /^[\d\t a-gi-z\xa0]+/, null, "\t Â\xa0abcdefgijklmnopqrstuvwxyz0123456789"],
+    ["pun", /^[*=[\]^~]+/, null, "=*~^[]"]
+], [
+    ["lang-wiki.meta", /(?:^^|\r\n?|\n)(#[a-z]+)\b/],
+    ["lit", /^[A-Z][a-z][\da-z]+[A-Z][a-z][^\W_]+\b/],
+    ["lang-", /^{{{([\S\s]+?)}}}/],
+    ["lang-", /^`([^\n\r`]+)`/],
+    ["str", /^https?:\/\/[^\s#/?]*(?:\/[^\s#?]*)?(?:\?[^\s#]*)?(?:#\S*)?/i],
+    ["pln", /^(?:\r\n|[\S\s])[^\n\r#*=A-[^`h{~]*/]
+]), ["wiki"]);
+PR.registerLangHandler(PR.createSimpleLexer([
+    ["kwd", /^#[a-z]+/i, null, "#"]
+], []), ["wiki.meta"]);
+// VB
+PR.registerLangHandler(PR.createSimpleLexer([
+    ["pln", /^[\t\n\r \xa0\u2028\u2029]+/, null, "\t\n\r Â\xa0â€¨â€©"],
+    ["str", /^(?:["\u201c\u201d](?:[^"\u201c\u201d]|["\u201c\u201d]{2})(?:["\u201c\u201d]c|$)|["\u201c\u201d](?:[^"\u201c\u201d]|["\u201c\u201d]{2})*(?:["\u201c\u201d]|$))/i, null, '"â€œâ€'],
+    ["com", /^['\u2018\u2019].*/, null, "'â€˜â€™"]
+], [
+    ["kwd", /^(?:addhandler|addressof|alias|and|andalso|ansi|as|assembly|auto|boolean|byref|byte|byval|call|case|catch|cbool|cbyte|cchar|cdate|cdbl|cdec|char|cint|class|clng|cobj|const|cshort|csng|cstr|ctype|date|decimal|declare|default|delegate|dim|directcast|do|double|each|else|elseif|end|endif|enum|erase|error|event|exit|finally|for|friend|function|get|gettype|gosub|goto|handles|if|implements|imports|in|inherits|integer|interface|is|let|lib|like|long|loop|me|mod|module|mustinherit|mustoverride|mybase|myclass|namespace|new|next|not|notinheritable|notoverridable|object|on|option|optional|or|orelse|overloads|overridable|overrides|paramarray|preserve|private|property|protected|public|raiseevent|readonly|redim|removehandler|resume|return|select|set|shadows|shared|short|single|static|step|stop|string|structure|sub|synclock|then|throw|to|try|typeof|unicode|until|variant|wend|when|while|with|withevents|writeonly|xor|endif|gosub|let|variant|wend)\b/i,
+        null],
+    ["com", /^rem.*/i],
+    ["lit", /^(?:true\b|false\b|nothing\b|\d+(?:e[+-]?\d+[dfr]?|[dfilrs])?|(?:&h[\da-f]+|&o[0-7]+)[ils]?|\d*\.\d+(?:e[+-]?\d+)?[dfr]?|#\s+(?:\d+[/-]\d+[/-]\d+(?:\s+\d+:\d+(?::\d+)?(\s*(?:am|pm))?)?|\d+:\d+(?::\d+)?(\s*(?:am|pm))?)\s+#)/i],
+    ["pln", /^(?:(?:[a-z]|_\w)\w*|\[(?:[a-z]|_\w)\w*])/i],
+    ["pun", /^[^\w\t\n\r "'[\]\xa0\u2018\u2019\u201c\u201d\u2028\u2029]+/],
+    ["pun", /^(?:\[|])/]
+]), ["vb", "vbs"]);
+// SQL
+PR.registerLangHandler(PR.createSimpleLexer([
+    ["pln", /^[\t\n\r \xa0]+/, null, "\t\n\r Â\xa0"],
+    ["str", /^(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/, null, "\"'"]
+], [
+    ["com", /^(?:--[^\n\r]*|\/\*[\S\s]*?(?:\*\/|$))/],
+    ["kwd", /^(?:add|all|alter|and|any|as|asc|authorization|backup|begin|between|break|browse|bulk|by|cascade|case|check|checkpoint|close|clustered|coalesce|collate|column|commit|compute|constraint|contains|containstable|continue|convert|create|cross|current|current_date|current_time|current_timestamp|current_user|cursor|database|dbcc|deallocate|declare|default|delete|deny|desc|disk|distinct|distributed|double|drop|dummy|dump|else|end|errlvl|escape|except|exec|execute|exists|exit|fetch|file|fillfactor|for|foreign|freetext|freetexttable|from|full|function|goto|grant|group|having|holdlock|identity|identitycol|identity_insert|if|in|index|inner|insert|intersect|into|is|join|key|kill|left|like|lineno|load|match|merge|national|nocheck|nonclustered|not|null|nullif|of|off|offsets|on|open|opendatasource|openquery|openrowset|openxml|option|or|order|outer|over|percent|plan|precision|primary|print|proc|procedure|public|raiserror|read|readtext|reconfigure|references|replication|restore|restrict|return|revoke|right|rollback|rowcount|rowguidcol|rule|save|schema|select|session_user|set|setuser|shutdown|some|statistics|system_user|table|textsize|then|to|top|tran|transaction|trigger|truncate|tsequal|union|unique|update|updatetext|use|user|using|values|varying|view|waitfor|when|where|while|with|writetext)(?=[^\w-]|$)/i,
+        null],
+    ["lit", /^[+-]?(?:0x[\da-f]+|(?:\.\d+|\d+(?:\.\d*)?)(?:e[+-]?\d+)?)/i],
+    ["pln", /^[_a-z][\w-]*/i],
+    ["pun", /^[^\w\t\n\r "'\xa0][^\w\t\n\r "'+\xa0-]*/]
+]), ["sql"]);

@@ -19,7 +19,7 @@ class InstallCommand extends BaseInstallCommand {
     protected function configure() {
         $this
             ->setName('glit:install')
-            ->addOption('unix_user', '', InputOption::VALUE_REQUIRED, 'Unix user executing site and manipuling git.')
+            ->addOption('unix_user', '', InputOption::VALUE_OPTIONAL, 'Unix user executing site and manipuling git.')
 
             ->addOption('admin_username', '', InputOption::VALUE_REQUIRED, 'Administrator username')
             ->addOption('admin_password', '', InputOption::VALUE_REQUIRED, 'Administrator password')
@@ -40,11 +40,6 @@ class InstallCommand extends BaseInstallCommand {
         // Save the output interface
         $this->output = $output;
 
-        if (get_current_user() !== "root") {
-            $output->writeln('<error>This script need to be run as root. Abort.</error>');
-            return 1;
-        }
-
         if (!$this->checkPackageInstalled('sudo')) {
             $output->writeln('<error>This script need the sudo program. Please install it and relaunch.</error>');
             return 101;
@@ -56,6 +51,9 @@ class InstallCommand extends BaseInstallCommand {
         }
 
         $unixUser = $input->getOption('unix_user');
+        if (empty($unixUser)) {
+            $unixUser = get_current_user();
+        }
 
         $this->createGitUser();
 
@@ -155,12 +153,12 @@ class InstallCommand extends BaseInstallCommand {
     }
 
     private function createGitUser() {
-        $this->execProcess("adduser --system --shell /bin/sh --gecos 'git version control' --group --disabled-password --home /home/git git");
+        $this->execProcess("sudo adduser --system --shell /bin/sh --gecos 'git version control' --group --disabled-password --home /home/git git");
     }
 
     private function createGlitUser($user) {
         // Add user to git group
-        $this->execProcess(sprintf("usermod -a -G git %s", $user));
+        $this->execProcess(sprintf("sudo usermod -a -G git %s", $user));
 
         // Create sshKey
         $this->execProcess(sprintf("sudo -H -u %s ssh-keygen -q -N '' -t rsa -f /home/%s/.ssh/id_rsa", $user, $user));
@@ -186,8 +184,8 @@ class InstallCommand extends BaseInstallCommand {
         $this->execProcess(sprintf('sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/glit.pub"', $user));
 
         // Set repositories dir permissions
-        $this->execProcess('chmod -R g+rwX /home/git/repositories/');
-        $this->execProcess('chown -R git:git /home/git/repositories/');
+        $this->execProcess('sudo chmod -R g+rwX /home/git/repositories/');
+        $this->execProcess('sudo chown -R git:git /home/git/repositories/');
 
         // clone admin repo to be sure your user has access to gitolite
         $this->execProcess(sprintf('sudo -u %s -H git clone git@localhost:gitolite-admin.git /tmp/gitolite-admin', $user));
