@@ -1,4 +1,4 @@
-# Welcome to Glit
+# Welcome to Glit [![build status](https://secure.travis-ci.org/wpottier/Glit.png)](https://secure.travis-ci.org/wpottier/Glit)
 
 Glit is a free project hosting & collaborative platform application wich used git versionning system.
 This platform is powered by symfony2 and work with gitolite git server.
