@@ -412,3 +412,7 @@ table.list-items td.label-container {
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+.breadcrumb {
+    font-weight: bold;
+}
