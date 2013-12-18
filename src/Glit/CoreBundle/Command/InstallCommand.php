@@ -161,10 +161,34 @@ class InstallCommand extends BaseInstallCommand {
         $this->execProcess(sprintf("sudo usermod -a -G git %s", $user));
 
         // Create sshKey
-        $this->execProcess(sprintf("sudo -H -u %s ssh-keygen -q -N '' -t rsa -f /home/%s/.ssh/id_rsa", $user, $user));
+        $dialog = $this->getDialogHelper();
+        $generateSshKey = true;
+        if ($this->checkSshKeyExists($user)) {
+            // Get all parameters
+            $generateSshKey = $dialog->askConfirmation(
+                $this->output,
+                sprintf("<question>User %s has already a ssh key. Generate a new one and replace it ? [N]</question>", $user),
+                false
+            );
+
+            if ($generateSshKey) {
+                $this->removeSshKey($user);
+            }
+        }
+
+        if ($generateSshKey) {
+            $this->execProcess(sprintf("sudo -H -u %s ssh-keygen -q -N '' -t rsa -f /home/%s/.ssh/id_rsa", $user, $user));
+        }
 
         // add localhost public key to known_hosts
-        $this->execProcess(sprintf('sudo -H -u %s echo "localhost" `cat /etc/ssh/ssh_host_rsa_key.pub` >> /home/%s/.ssh/known_hosts', $user, $user));
+        $addLocalhostKeyToKnownHosts = $dialog->askConfirmation(
+            $this->output,
+            sprintf("<question>Add the local host public key to known_hosts ? [N]</question>", $user),
+            false
+        );
+        if ($addLocalhostKeyToKnownHosts) {
+            $this->execProcess(sprintf('sudo -H -u %s echo "localhost" `cat /etc/ssh/ssh_host_rsa_key.pub` >> /home/%s/.ssh/known_hosts', $user, $user));
+        }
     }
 
     private function installGitolite($user) {
