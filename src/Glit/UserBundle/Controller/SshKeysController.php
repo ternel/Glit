@@ -24,7 +24,7 @@ class SshKeysController extends Controller {
      * @Route("/new")
      */
     public function newAction() {
-        return $this->forward('GlitUserBundle:SshKey:edit', array('id' => null));
+        return $this->forward('GlitUserBundle:SshKeys:edit', array('id' => null));
     }
 
     /**
