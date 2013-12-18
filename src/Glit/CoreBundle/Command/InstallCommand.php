@@ -145,12 +145,18 @@ class InstallCommand extends BaseInstallCommand {
         $input = new ArrayInput(array());
 
         // Create database
+        $commandCreateDbInput = new ArrayInput(array(
+            'command' => 'doctrine:database:create'
+        ));
         $commandCreateDb = $this->getApplication()->find('doctrine:database:create');
-        $commandCreateDb->run($input, $output);
+        $commandCreateDb->run($commandCreateDbInput, $output);
 
         // Init schema
+        $commandCreateSchemaInput = new ArrayInput(array(
+            'command' => 'doctrine:schema:create'
+        ));
         $commandCreateSchema = $this->getApplication()->find('doctrine:schema:create');
-        $commandCreateSchema->run($input, $output);
+        $commandCreateSchema->run($commandCreateSchemaInput, $output);
     }
 
     private function createGitUser() {
