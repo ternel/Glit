@@ -48,7 +48,10 @@ class InitCommand extends ContainerAwareCommand {
         $encoder = $this->getEncoderFactory()->getEncoder($user);
         $user->setPassword($encoder->encodePassword($input->getArgument('password'), $user->getSalt()));
 
-        $user->setEmail($input->getArgument('email'));
+        $email = new \Glit\UserBundle\Entity\Email($user);
+        $email->setAddress($input->getArgument('email'));
+        
+        $user->addEmail($email);
         $user->setFirstname($input->getArgument('firstname'));
         $user->setLastname($input->getArgument('lastname'));
 
