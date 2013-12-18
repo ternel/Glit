@@ -130,6 +130,7 @@ class InstallCommand extends BaseInstallCommand {
 
         // Create database
         $arguments = array(
+            'command'       => 'glit:users:initialize',
             'username'      => $input->getOption('admin_username'),
             'password'      => $input->getOption('admin_password'),
             'firstname'     => $input->getOption('admin_firstname'),
