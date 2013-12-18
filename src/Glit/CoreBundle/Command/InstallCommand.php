@@ -5,6 +5,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class InstallCommand extends BaseInstallCommand {
 
@@ -167,7 +168,7 @@ class InstallCommand extends BaseInstallCommand {
             // Get all parameters
             $generateSshKey = $dialog->askConfirmation(
                 $this->output,
-                sprintf("<question>User %s has already a ssh key. Generate a new one and replace it ? [N]</question>", $user),
+                sprintf("<question>User %s has already a ssh key. Generate a new one and replace it ? [N] :</question>", $user),
                 false
             );
 
@@ -183,7 +184,7 @@ class InstallCommand extends BaseInstallCommand {
         // add localhost public key to known_hosts
         $addLocalhostKeyToKnownHosts = $dialog->askConfirmation(
             $this->output,
-            sprintf("<question>Add the local host public key to known_hosts ? [N]</question>", $user),
+            sprintf("<question>Add the local host public key to known_hosts ? [N] :</question>", $user),
             false
         );
         if ($addLocalhostKeyToKnownHosts) {
@@ -192,6 +193,17 @@ class InstallCommand extends BaseInstallCommand {
     }
 
     private function installGitolite($user) {
+        $dialog = $this->getDialogHelper();
+        $gitoliteInstalled = $dialog->askConfirmation(
+            $this->output,
+            sprintf("<question>Is Gitolite already installed ? [N] :</question>", $user),
+            false
+        );
+
+        if ($gitoliteInstalled) {
+            return;
+        }
+
         // Clone source
         $this->execProcess('cd /home/git && exec sudo -H -u git git clone git://github.com/sitaramc/gitolite /home/git/gitolite');
 
