@@ -20,7 +20,13 @@ All sources were released under the MIT license
 
 ## Install
 
-* An automated installer is available. So you just need to run it with the following command
+* First, copy the `app/config/parameters.ini.dist` into `app/config/parameters.ini` and edit the values according to your databse configuration
+
+* With your terminal, go the glit directory and run the following command (to install symfony and vendors) :
+
+    php bin/vendor install
+
+* Run the automated installer
 
     php app/console glit:install
      
