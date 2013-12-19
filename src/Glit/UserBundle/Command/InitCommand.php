@@ -15,11 +15,11 @@ class InitCommand extends ContainerAwareCommand {
     protected function configure() {
         $this
             ->setName('glit:users:initialize')
-            ->addOption('username', '', InputOption::VALUE_REQUIRED, 'Username')
-            ->addOption('password', '', InputOption::VALUE_REQUIRED, 'Password')
-            ->addOption('firstname', '', InputOption::VALUE_REQUIRED, 'Firstname')
-            ->addOption('lastname', '', InputOption::VALUE_REQUIRED, 'Lastname')
-            ->addOption('email', '', InputOption::VALUE_REQUIRED, 'Email');
+            ->addArgument('username', InputOption::VALUE_REQUIRED, 'Username')
+            ->addArgument('password', InputOption::VALUE_REQUIRED, 'Password')
+            ->addArgument('firstname', InputOption::VALUE_REQUIRED, 'Firstname')
+            ->addArgument('lastname', InputOption::VALUE_REQUIRED, 'Lastname')
+            ->addArgument('email', InputOption::VALUE_REQUIRED, 'Email');
     }
 
     /**
@@ -43,14 +43,17 @@ class InitCommand extends ContainerAwareCommand {
 
         $user = new Entity\User();
 
-        $user->setUsername($input->getOption('username'));
+        $user->setUsername($input->getArgument('username'));
 
         $encoder = $this->getEncoderFactory()->getEncoder($user);
-        $user->setPassword($encoder->encodePassword($input->getOption('password'), $user->getSalt()));
+        $user->setPassword($encoder->encodePassword($input->getArgument('password'), $user->getSalt()));
 
-        $user->setEmail($input->getOption('email'));
-        $user->setFirstname($input->getOption('firstname'));
-        $user->setLastname($input->getOption('lastname'));
+        $email = new \Glit\UserBundle\Entity\Email($user);
+        $email->setAddress($input->getArgument('email'));
+        
+        $user->addEmail($email);
+        $user->setFirstname($input->getArgument('firstname'));
+        $user->setLastname($input->getArgument('lastname'));
 
         $em->persist($user);
         $em->flush();

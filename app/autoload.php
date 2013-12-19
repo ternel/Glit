@@ -16,6 +16,7 @@ $loader->registerNamespaces(array(
                                  'Metadata'         => __DIR__ . '/../vendor/metadata/src',
                                  'Stof'             => __DIR__ . '/../vendor/bundles',
                                  'Gedmo'            => __DIR__ . '/../vendor/gedmo-doctrine-extensions/lib',
+                                 'dflydev'           => __DIR__.'/../vendor/dflydev-markdown/src',
                                  'Knp'              => __DIR__ . '/../vendor/bundles',
                             ));
 $loader->registerPrefixes(array(

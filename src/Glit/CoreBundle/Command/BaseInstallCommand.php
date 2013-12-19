@@ -30,6 +30,16 @@ abstract class BaseInstallCommand extends ContainerAwareCommand {
         return strpos($process->getOutput(), 'install ok installed') !== false;
     }
 
+    protected function checkSshKeyExists($user) {
+        $process = $this->execProcess(sprintf("sudo ls /home/%s/.ssh/id_rsa", $user));
+        return strpos($process->getOutput(), 'No such file or directory') === false;
+    }
+
+    protected function removeSshKey($user) {
+        $process = $this->execProcess(sprintf("sudo rm -rf /home/%s/.ssh/id_rsa", $user));
+        $process = $this->execProcess(sprintf("sudo rm -rf /home/%s/.ssh/id_rsa.pub", $user));
+    }
+
     protected abstract function log($text);
 
     protected function getDialogHelper() {
